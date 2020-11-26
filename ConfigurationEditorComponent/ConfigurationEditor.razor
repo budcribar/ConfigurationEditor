@@ -1,0 +1,321 @@
+﻿
+Configuration Editor
+
+@*@inject DialogService dialogService
+
+@inject IConfigurationSerializer fanSerializer
+
+@if (ssids != null)
+{
+    <div class="row">
+        <div class="col-md-8">
+            <RadzenDropDown AllowClear="true" TValue="string"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" AllowFiltering="true"
+                            Data="@ssids" Change="@(args => Change(args, "DropDown"))" SelectedItem="@selectedSsid" />
+
+        </div>
+        <div class="col-md-4">
+            @if (root != null)
+            {
+                <button type="button" class="btn btn-info btn-md" @onclick="Duplicate">Duplicate</button>
+                <button type="button" class="btn btn-info btn-md" @onclick="Remove">Delete</button>
+            }
+
+        </div>
+    </div>
+}
+
+@if (nodes != null)
+
+{
+
+    <div class="row">
+        <div class="col-md-8" style="margin-bottom: 16px">
+            <RadzenTree Change="@OnTreeSelectionChange" Data="nodes" Expand="@OnTreeNodeExpand" Style="width: 100%; height: 600px">
+                <RadzenTreeLevel TextProperty="Name" HasChildren="@(item => item is PropertyNode node ? node.Name == "Instances" : false)" Template="@TreeItemTemplate" Expanded="@((item) => IsNodeExpanded((PropertyNode)item))" Selected="@((item) => IsNodeSelected((PropertyNode)item))" />
+            </RadzenTree>
+
+        </div>
+
+        <div class="col-md-4" style="margin-bottom: 16px">
+
+            @if (_editModel != null)
+            {
+                if (_editModel.Children == null)
+                {
+                    <RadzenCard style="overflow: auto;height:180px;">
+
+                        <span>@_editModel.Name</span>
+
+                        <input @bind=@_editModel.StringValue />
+
+                        <div class="row" style="margin-top:16px">
+                            <div class="col-md-6 text-center">
+                                <button type="button" @onclick="Save" class="btn btn-info btn-md">
+                                    Save
+                                </button>
+                            </div>
+                            <div class="col-md-6 text-center">
+                                <button type="button" @onclick="Cancel" class="btn btn-info btn-md">
+                                    Cancel
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </RadzenCard>
+                }
+                else if (_editModel.Name == "Instances")
+                {
+                    <RadzenCard style="overflow: auto;height:180px;">
+
+                        <span>@_editModel.Name</span>
+
+                        <div class="row" style="margin-top:16px">
+                            <div class="col-md-6 text-center">
+                                <button type="button" @onclick="Insert" class="btn btn-info btn-md">
+                                    Insert
+                                </button>
+                               
+                                
+                            </div>
+                            <div class="col-md-6 text-center">
+                                <button type="button" @onclick="Remove" class="btn btn-info btn-md">
+                                    Cancel
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </RadzenCard>
+                }
+            }
+        </div>
+
+    </div>
+}
+
+@code
+{
+    IEnumerable<string> ssids;
+    private IRootComponent root;
+    private PropertyNode _editModel;
+    private string _savedValue;
+    private string selectedSsid = null;
+    private List<PropertyNode> nodes = null;
+    private List<IHardwareComponent> components;
+    private IHardwareComponent selectedComponent;
+
+    public async void Duplicate()
+    {
+        var copy = root.DeepCopy();
+        copy.Id = null;
+        copy.SSID += "COPY";
+        await fanSerializer.Insert(copy);
+        selectedSsid = copy.SSID;
+        root = await fanSerializer.Read(selectedSsid);
+        nodes = propertyIterator.Walk(root).ToList();
+        OnInitialized();
+    }
+
+    void Open(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
+    {
+        StateHasChanged();
+    }
+
+    async void Close(dynamic result)
+    {
+        if (result != null && (bool)result && selectedComponent != null)
+        {
+            var x = _editModel.Instance as IHardwareComposite;
+
+            if (x == null) return;
+
+            x.Instances.Add(selectedComponent);
+            selectedComponent.Parent = x;
+
+            _editModel = null;
+            await fanSerializer.Update(root.Id, root);
+            root = await fanSerializer.Read(selectedSsid);
+
+            nodes = propertyIterator.Walk(root).ToList();
+        }
+        StateHasChanged();
+    }
+
+    async Task Insert()
+    {
+
+        await dialogService.OpenAsync("Insert Node", ds =>
+    @<RadzenCard Style="padding: 20px;">
+
+    <RadzenDropDown AllowClear="true" TValue="IHardwareComponent" TextProperty="Name"
+                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" AllowFiltering="true"
+                    Data="@components" SelectedItemChanged="(args) => InsertComponent(args)" />
+
+
+    <p Style="margin-bottom: 10px;">Confirm?</p>
+    <div class="row">
+        <div class="col-md-12">
+            <RadzenButton Text="Ok" Click="() => ds.Close(true)" Style="margin-bottom: 10px; width: 150px" />
+            <RadzenButton Text="Cancel" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Secondary" Style="margin-bottom: 10px; width: 150px" />
+        </div>
+    </div>
+</RadzenCard>);
+    }
+
+    private Task Remove()
+    {
+        fanSerializer.Delete(root.Id);
+        _editModel = null;
+        root = null;
+        nodes = null;
+        selectedSsid = null;
+
+        OnInitialized();
+        return Task.CompletedTask;
+    }
+
+
+    private async Task Save()
+    {
+        await fanSerializer.Update(root.Id, root);
+        ssids = await fanSerializer.ReadSsids();
+
+        if (!ssids.Contains(selectedSsid))
+            selectedSsid = null;
+
+        
+
+        StateHasChanged();
+    }
+
+
+    public void Cancel()
+    {
+
+        _editModel.StringValue = _savedValue;
+    }
+
+    private PropertyIterator propertyIterator = new PropertyIterator();
+
+    private bool IsNodeExpanded(PropertyNode item)
+    {
+        return _editModel != null && _editModel is PropertyNode && item.Children != null && item.Children.Contains(item);
+    }
+
+    private bool IsNodeSelected(PropertyNode item)
+    {
+        return _editModel != null && _editModel == item;
+    }
+
+
+    private Task OnTreeSelectionChange(TreeEventArgs args)
+    {
+        var clickedItem = (PropertyNode)args.Value;
+        _editModel = clickedItem;
+        _savedValue = clickedItem.StringValue;
+        return Task.CompletedTask;
+    }
+
+    private Task OnTreeNodeExpand(TreeExpandEventArgs args)
+    {
+
+        if (args.Value is PropertyNode item)
+        {
+            args.Children.Data = item.Children;
+
+            args.Children.TextProperty = "Name";
+            args.Children.HasChildren = (i) => i is PropertyNode node ? node.Children?.Count() > 0 : false;
+            args.Children.Template = TreeItemTemplate;
+        }
+        return Task.CompletedTask;
+
+    }
+
+    RenderFragment<RadzenTreeItem>
+    TreeItemTemplate = (context) => builder =>
+    {
+        if (context.Value is PropertyNode item)
+        {
+            //builder.OpenComponent<RadzenIcon>(0);
+            //builder.AddAttribute(1, "Icon", item.Children?.Count() > 0 ? "folder" : "arrow forward");
+            //builder.AddAttribute(2, "Style",  "position:absolute; left:0px;margin-right: 6px;" );
+            //builder.CloseComponent();
+            builder.AddContent(3, context.Text);
+        }
+
+    };
+
+    Dictionary<DateTime, string>
+    events = new Dictionary<DateTime, string>
+    ();
+
+    void Log(string eventName, string value)
+    {
+        events.Add(DateTime.Now, $"{eventName}: {value}");
+    }
+
+    void LogChange(TreeEventArgs args)
+    {
+        //Log("Change", $"Item Text: {args.Text}");
+    }
+
+    void InsertComponent(object value)
+    {
+        var x = value as IHardwareComponent;
+
+        if (_editModel == null ) return;
+
+
+        selectedComponent = x;
+    }
+
+    async void Change(object value, string name)
+    {
+        selectedSsid = (string)value;
+
+        if (selectedSsid == null)
+        {
+            _editModel = null;
+            root = null;
+            nodes = null;
+        }
+        else
+        {
+            _editModel = null;
+            root = await fanSerializer.Read(selectedSsid);
+            nodes = propertyIterator.Walk(root).ToList();
+        }
+
+        StateHasChanged();
+    }
+
+    protected async override void OnInitialized()
+    {
+        dialogService.OnOpen += Open;
+        dialogService.OnClose += Close;
+
+        components = ConfigurationComponent.GetAvailableComponents().ToList();
+
+        ssids = await fanSerializer.ReadSsids();
+        var ssid = ToolFrameworkPackage.SystemInfo.Instance.SystemInformation.SystemId;
+
+        if (ssids.Contains(ssid))
+        {
+            selectedSsid = ssid;
+            root = await fanSerializer.Read(selectedSsid);
+            nodes = propertyIterator.Walk(root).ToList();
+        }
+
+
+        StateHasChanged();
+    }
+}
+
+<!--
+    Change="@(args => InsertComponent(args, "InsertComponent"))"
+-->
+*@

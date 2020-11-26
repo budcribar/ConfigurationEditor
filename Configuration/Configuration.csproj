@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>PeakSWC.Configuration</AssemblyName>
+    <Version>0.0.0.1-pre</Version>
+    <Authors>budcribar</Authors>
+    <Company>Peak Software Consulting, LLC</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	 <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+</Project>
