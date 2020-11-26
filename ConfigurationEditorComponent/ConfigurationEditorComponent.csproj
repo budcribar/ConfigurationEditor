@@ -10,6 +10,7 @@
     <FileVersion>0.0.0.1</FileVersion>
     <Version>0.0.0.1-pre</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	  <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
 
