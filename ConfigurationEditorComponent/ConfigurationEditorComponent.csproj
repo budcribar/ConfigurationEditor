@@ -11,6 +11,7 @@
     <Version>0.0.0.1-pre</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	  <LangVersion>latest</LangVersion>
+	  <SupportedPlatform>browser</SupportedPlatform>
   </PropertyGroup>
 
 
