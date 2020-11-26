@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationEditor", "Editor\ConfigurationEditor.csproj", "{AE7CA55C-69D0-40CA-955B-58CFC64E34C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigurationEditor", "Editor\ConfigurationEditor.csproj", "{AE7CA55C-69D0-40CA-955B-58CFC64E34C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationEditorComponent", "ConfigurationEditorComponent\ConfigurationEditorComponent.csproj", "{8DF0C8D1-A1AE-4D53-83DA-F24728D37C7A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{AE7CA55C-69D0-40CA-955B-58CFC64E34C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE7CA55C-69D0-40CA-955B-58CFC64E34C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE7CA55C-69D0-40CA-955B-58CFC64E34C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DF0C8D1-A1AE-4D53-83DA-F24728D37C7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DF0C8D1-A1AE-4D53-83DA-F24728D37C7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DF0C8D1-A1AE-4D53-83DA-F24728D37C7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DF0C8D1-A1AE-4D53-83DA-F24728D37C7A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
