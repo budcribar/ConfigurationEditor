@@ -10,34 +10,23 @@ using Newtonsoft.Json;
 namespace PeakSWC.Configuration
 {
    
-    public class JSONConfigurationSerializer : JSONHardwareSerializer<IRootComponent>, IConfigurationSerializer
+    public class JSONConfigurationSerializer : JSONComponentSerializer<IRootComponent>, IConfigurationSerializer
     {
         public JSONConfigurationSerializer() : base(null) { }
     }
 
-    public class JSONHardwareSerializer<TRoot> : IComponentSerializer<TRoot> where TRoot : class, IRootComponent
+    public class JSONComponentSerializer<TRoot> : IComponentSerializer<TRoot> where TRoot : class, IRootComponent
     {
         public const string FILENAME = "configuration.json";
 
         // TODO async and add error handling
         private string path;
-        private string Path => path ?? FILENAME;
+        public string Path => path ?? FILENAME;
         private IList<TRoot> roots = null;
-        private IList<TRoot> proxiedRoots = null;
 
         // https://blog.stephencleary.com/2012/08/asynchronous-lazy-initialization.html
 
 
-        public IList<TRoot> RootsProxy
-        {
-            get
-            {
-               
-                return Roots;
-            }
-        }
-
-        
         public IList<TRoot> Roots
         {
             get
@@ -60,7 +49,7 @@ namespace PeakSWC.Configuration
             }
         }
 
-        public JSONHardwareSerializer(string path=FILENAME) {         
+        public JSONComponentSerializer(string path=FILENAME) {         
             this.path = path;      
         }
 
@@ -85,7 +74,6 @@ namespace PeakSWC.Configuration
        
         public Task Write()
         {
-            proxiedRoots = null;
             var json = JsonConvert.SerializeObject(roots, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All, PreserveReferencesHandling = PreserveReferencesHandling.All });
             
             File.WriteAllText(Path, json);
