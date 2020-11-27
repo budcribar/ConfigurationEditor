@@ -35,7 +35,15 @@ namespace PeakSWC.Configuration
                 {
                     if (File.Exists(Path))
                     {
-                        roots = JsonConvert.DeserializeObject<List<TRoot>>(File.ReadAllText(Path), new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
+                        try
+                        {
+                            roots = JsonConvert.DeserializeObject<List<TRoot>>(File.ReadAllText(Path), new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
+                        }
+                        catch (Exception) { }
+
+                        if (roots == null)
+                            roots = new List<TRoot>();
+                        
                     }
                     else roots = new List<TRoot>();
                     
