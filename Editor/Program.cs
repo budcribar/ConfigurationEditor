@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PeakSWC;
+using PeakSWC.Configuration;
 using Radzen;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,16 @@ namespace PeakSWC.ConfigurationEditor
 
             builder.Services.AddScoped<DialogService>();
             builder.Services.AddScoped<NotificationService>();
+
+            // Register services
+            builder.Services.AddSingleton<IConfigurationSerializer>(new JSONConfigurationSerializer());
+
+            var serializer = new JSONConfigurationSerializer();
+            var root = new RootComponent { Id = "1", Name = "TheRoot" };
+            if(serializer.Roots.Count == 0)
+                serializer.Roots.Add(root);
+            await serializer.Write();
+
 
             await builder.Build().RunAsync();
         }

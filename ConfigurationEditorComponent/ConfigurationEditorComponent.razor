@@ -4,7 +4,7 @@
 @using Radzen.Blazor;
 
 @inject DialogService dialogService
-@inject IConfigurationSerializer fanSerializer
+@inject IConfigurationSerializer serializer
 
 Configuration Editor
 
@@ -120,9 +120,9 @@ Configuration Editor
         var copy = root.DeepCopy();
         copy.Id = null;
        
-        await fanSerializer.Insert(copy);
+        await serializer.Insert(copy);
         selectedSsid = copy.Id;
-        root = await fanSerializer.Read(selectedSsid);
+        root = await serializer.Read(selectedSsid);
         nodes = propertyIterator.Walk(root).ToList();
         OnInitialized();
     }
@@ -144,8 +144,8 @@ Configuration Editor
             selectedComponent.Parent = x;
 
             _editModel = null;
-            await fanSerializer.Update(root.Id, root);
-            root = await fanSerializer.Read(selectedSsid);
+            await serializer.Update(root.Id, root);
+            root = await serializer.Read(selectedSsid);
 
             nodes = propertyIterator.Walk(root).ToList();
         }
@@ -175,7 +175,7 @@ Configuration Editor
 
     private Task Remove()
     {
-        fanSerializer.Delete(root.Id);
+        serializer.Delete(root.Id);
         _editModel = null;
         root = null;
         nodes = null;
@@ -188,8 +188,8 @@ Configuration Editor
 
     private async Task Save()
     {
-        await fanSerializer.Update(root.Id, root);
-        ssids = await fanSerializer.ReadIds();
+        await serializer.Update(root.Id, root);
+        ssids = await serializer.ReadIds();
 
         if (!ssids.Contains(selectedSsid))
             selectedSsid = null;
@@ -293,7 +293,7 @@ Configuration Editor
         else
         {
             _editModel = null;
-            root = await fanSerializer.Read(selectedSsid);
+            root = await serializer.Read(selectedSsid);
             nodes = propertyIterator.Walk(root).ToList();
         }
 
@@ -307,13 +307,13 @@ Configuration Editor
 
         components = ConfigurationComponent.GetAvailableComponents().ToList();
 
-        ssids = await fanSerializer.ReadIds();
+        ssids = await serializer.ReadIds();
         var ssid = ssids.First();
 
         if (ssids.Contains(ssid))
         {
             selectedSsid = ssid;
-            root = await fanSerializer.Read(selectedSsid);
+            root = await serializer.Read(selectedSsid);
             nodes = propertyIterator.Walk(root).ToList();
         }
 

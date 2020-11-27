@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ConfigurationEditorComponent\ConfigurationEditorComponent.csproj" />
     <ProjectReference Include="..\Configuration\Configuration.csproj" />
   </ItemGroup>
 
