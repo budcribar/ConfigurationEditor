@@ -14,10 +14,6 @@
 	  <SupportedPlatform>browser</SupportedPlatform>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Content Remove="wwwroot\SaveFile.razor" />
-  </ItemGroup>
-
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.1.10" />
@@ -28,21 +24,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Configuration\Configuration.csproj" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <UpToDateCheckInput Remove="wwwroot\SaveFile.razor" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="wwwroot\SaveFile.razor" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <None Include="wwwroot\SaveFile.razor" />
   </ItemGroup>
 
 </Project>

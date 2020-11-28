@@ -1,0 +1,24 @@
+﻿@page "/file"
+@using PeakSWC.Configuration
+@inject IJSRuntime JSRuntime
+@inject MemoryConfigurationSerializer  Serializer
+<!--
+
+https://morioh.com/p/96f05aad50c3
+    https://github.com/sample-by-jsakamoto/Blazor-DownloadFIles/blob/master/Client/wwwroot/script/helper.js
+    -->
+<h1>File</h1>
+
+<button @onclick="DownloadText">Download configuration file</button>
+
+
+@code {
+    async Task DownloadText()
+    {
+        // Generate a text file
+        byte[] file = System.Text.Encoding.UTF8.GetBytes(Serializer.data);
+        
+        // TODO use C# method
+        await JSRuntime.InvokeVoidAsync("exampleJsFunctions.saveFile", "configuration.json", "text/json", file);
+    }
+}

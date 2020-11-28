@@ -62,7 +62,7 @@ namespace PeakSWC.Configuration
        
         public IEnumerable<PropertyNode> Walk(object element)
         {
-            foreach (var p in element.GetType().GetProperties())
+            foreach (var p in element.GetType().GetProperties().OrderBy(n => n.Name))
             {
                 List<PropertyNode> children = null;
                 if (p.Name == "Instances")

@@ -6,9 +6,9 @@
 @inject DialogService dialogService
 @inject IConfigurationSerializer serializer
 
-Configuration Editor
+<h1>Configuration Editor</h1>
 
-@if (ssids != null)
+@if (ids != null)
 {
     
     <div class="row">
@@ -17,7 +17,7 @@ Configuration Editor
 
             <RadzenDropDown AllowClear="true" TValue="string"
                             FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" AllowFiltering="true"
-                            Data="@ssids" Change="@(args => Change(args, "DropDown"))" SelectedItem="@selectedSsid" />
+                            Data="@ids" Change="@(args => Change(args, "DropDown"))" SelectedItem="@selectedId" />
 
         </div>
         <div class="col-md-4">
@@ -106,11 +106,11 @@ Configuration Editor
 
 @code
 {
-    IEnumerable<string> ssids;
+    IEnumerable<string> ids;
     private IRootComponent root;
     private PropertyNode _editModel;
     private string _savedValue;
-    private string selectedSsid = null;
+    private string selectedId = null;
     private List<PropertyNode> nodes = null;
     private List<Configuration.IComponent> components;
     private Configuration.IComponent selectedComponent;
@@ -121,8 +121,8 @@ Configuration Editor
         copy.Id = null;
        
         await serializer.Insert(copy);
-        selectedSsid = copy.Id;
-        root = await serializer.Read(selectedSsid);
+        selectedId = copy.Id;
+        root = await serializer.Read(selectedId);
         nodes = propertyIterator.Walk(root).ToList();
         OnInitialized();
     }
@@ -145,7 +145,7 @@ Configuration Editor
 
             _editModel = null;
             await serializer.Update(root.Id, root);
-            root = await serializer.Read(selectedSsid);
+            root = await serializer.Read(selectedId);
 
             nodes = propertyIterator.Walk(root).ToList();
         }
@@ -179,7 +179,7 @@ Configuration Editor
         _editModel = null;
         root = null;
         nodes = null;
-        selectedSsid = null;
+        selectedId = null;
 
         OnInitialized();
         return Task.CompletedTask;
@@ -189,10 +189,10 @@ Configuration Editor
     private async Task Save()
     {
         await serializer.Update(root.Id, root);
-        ssids = await serializer.ReadIds();
+        ids = await serializer.ReadIds();
 
-        if (!ssids.Contains(selectedSsid))
-            selectedSsid = null;
+        if (!ids.Contains(selectedId))
+            selectedId = null;
 
         
 
@@ -282,9 +282,9 @@ Configuration Editor
 
     async void Change(object value, string name)
     {
-        selectedSsid = (string)value;
+        selectedId = (string)value;
 
-        if (selectedSsid == null)
+        if (selectedId == null)
         {
             _editModel = null;
             root = null;
@@ -293,7 +293,7 @@ Configuration Editor
         else
         {
             _editModel = null;
-            root = await serializer.Read(selectedSsid);
+            root = await serializer.Read(selectedId);
             nodes = propertyIterator.Walk(root).ToList();
         }
 
@@ -307,13 +307,13 @@ Configuration Editor
 
         components = ConfigurationComponent.GetAvailableComponents().ToList();
 
-        ssids = await serializer.ReadIds();
-        var ssid = ssids?.FirstOrDefault();
+        ids = await serializer.ReadIds();
+        var id = ids?.FirstOrDefault();
 
-        if (ssids?.Contains(ssid) ?? false)
+        if (ids?.Contains(id) ?? false)
         {
-            selectedSsid = ssid;
-            root = await serializer.Read(selectedSsid);
+            selectedId = id;
+            root = await serializer.Read(selectedId);
             nodes = propertyIterator.Walk(root).ToList();
         }
 
