@@ -24,9 +24,9 @@ namespace PeakSWC.ConfigurationEditor
 
             builder.Services.AddScoped<DialogService>();
             builder.Services.AddScoped<NotificationService>();
-
+            builder.Services.AddSingleton<AppVersionInfo>();
             // Register services
-           
+
 
             var serializer = new MemoryConfigurationSerializer();
             var root = new RootComponent { Id = "1", Name = "The First Root", StringProp="First string", IntProp=1 };
