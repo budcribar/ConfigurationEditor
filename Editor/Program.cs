@@ -28,7 +28,7 @@ namespace PeakSWC.ConfigurationEditor
             // Register services
             builder.Services.AddSingleton<IConfigurationSerializer>(new JSONConfigurationSerializer());
 
-            var serializer = new JSONConfigurationSerializer();
+            var serializer = new MemoryConfigurationSerializer();
             var root = new RootComponent { Id = "1", Name = "TheRoot" };
             if(serializer.Roots.Count == 0)
                 serializer.Roots.Add(root);

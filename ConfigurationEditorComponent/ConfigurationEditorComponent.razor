@@ -15,9 +15,9 @@ Configuration Editor
         <div class="col-md-8">
 
 
-          @*  <RadzenDropDown AllowClear="true" TValue="string"
+            <RadzenDropDown AllowClear="true" TValue="string"
                             FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" AllowFiltering="true"
-                            Data="@ssids" Change="@(args => Change(args, "DropDown"))" SelectedItem="@selectedSsid" />*@
+                            Data="@ssids" Change="@(args => Change(args, "DropDown"))" SelectedItem="@selectedSsid" />
 
         </div>
         <div class="col-md-4">
@@ -37,9 +37,9 @@ Configuration Editor
 
     <div class="row">
         <div class="col-md-8" style="margin-bottom: 16px">
-           @* <RadzenTree Change="@OnTreeSelectionChange" Data="nodes" Expand="@OnTreeNodeExpand" Style="width: 100%; height: 600px">
+            <RadzenTree Change="@OnTreeSelectionChange" Data="nodes" Expand="@OnTreeNodeExpand" Style="width: 100%; height: 600px">
                 <RadzenTreeLevel TextProperty="Name" HasChildren="@(item => item is PropertyNode node ? node.Name == "Instances" : false)" Template="@TreeItemTemplate" Expanded="@((item) => IsNodeExpanded((PropertyNode)item))" Selected="@((item) => IsNodeSelected((PropertyNode)item))" />
-            </RadzenTree>*@
+            </RadzenTree>
 
         </div>
 
@@ -49,7 +49,7 @@ Configuration Editor
             {
                 if (_editModel.Children == null)
                 {
-                  @*  <RadzenCard style="overflow: auto;height:180px;">*@
+                    <RadzenCard style="overflow: auto;height:180px;">
 
                         <span>@_editModel.Name</span>
 
@@ -70,11 +70,11 @@ Configuration Editor
 
                         </div>
 
-                 @*   </RadzenCard>*@
+                    </RadzenCard>
                 }
                 else if (_editModel.Name == "Instances")
                 {
-                  @*  <RadzenCard style="overflow: auto;height:180px;">*@
+                    <RadzenCard style="overflow: auto;height:180px;">
 
                         <span>@_editModel.Name</span>
 
@@ -95,7 +95,7 @@ Configuration Editor
 
                         </div>
 
-                    @*</RadzenCard>*@
+                    </RadzenCard>
                 }
             }
         </div>
@@ -308,9 +308,9 @@ Configuration Editor
         components = ConfigurationComponent.GetAvailableComponents().ToList();
 
         ssids = await serializer.ReadIds();
-        var ssid = ssids.First();
+        var ssid = ssids?.FirstOrDefault();
 
-        if (ssids.Contains(ssid))
+        if (ssids?.Contains(ssid) ?? false)
         {
             selectedSsid = ssid;
             root = await serializer.Read(selectedSsid);
