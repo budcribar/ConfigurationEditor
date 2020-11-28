@@ -1,0 +1,10 @@
+﻿@page "/about"
+@inject AppVersionInfo VersionInfo
+
+<h3>About page</h3>
+<h2>BuildNumber: @(VersionInfo.BuildNumber)</h2>
+<h2>BuildId: <a href="https://github.com/budcribar/ConfigurationEditor/_build/results?buildId=@(VersionInfo.BuildId)&view=results">@(VersionInfo.BuildId)</a> </h2>
+<h2>GitHash:<a href="https://github.com/budcribar/ConfigurationEditor/commit/@(VersionInfo.GitHash)">@(VersionInfo.ShortGitHash)</a></h2>
+@code {
+
+}
