@@ -155,10 +155,10 @@ Configuration Editor
     async Task Insert()
     {
 
-       @* await dialogService.OpenAsync("Insert Node", ds =>
+        await dialogService.OpenAsync("Insert Node", ds =>
     @<RadzenCard Style="padding: 20px;">
 
-    <RadzenDropDown AllowClear="true" TValue="IComponent" TextProperty="Name"
+    <RadzenDropDown AllowClear="true" TValue="Configuration.IComponent" TextProperty="Name"
                     FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" AllowFiltering="true"
                     Data="@components" SelectedItemChanged="(args) => InsertComponent(args)" />
 
@@ -170,7 +170,7 @@ Configuration Editor
             <RadzenButton Text="Cancel" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Secondary" Style="margin-bottom: 10px; width: 150px" />
         </div>
     </div>
-</RadzenCard>);*@
+</RadzenCard>);
     }
 
     private Task Remove()
