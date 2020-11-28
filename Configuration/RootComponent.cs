@@ -12,6 +12,9 @@ namespace PeakSWC.Configuration
         public string Name { get; set; }
         public IComponent Parent { get => null; set => throw new NotImplementedException(); }
 
+        public string StringProp { get; set; }
+        public int IntProp { get; set; }
+
         //  TODO
         public IRootComponent DeepCopy()
         {

@@ -26,15 +26,16 @@ namespace PeakSWC.ConfigurationEditor
             builder.Services.AddScoped<NotificationService>();
 
             // Register services
-            builder.Services.AddSingleton<IConfigurationSerializer>(new JSONConfigurationSerializer());
+           
 
             var serializer = new MemoryConfigurationSerializer();
-            var root = new RootComponent { Id = "1", Name = "TheRoot" };
-            if(serializer.Roots.Count == 0)
+            var root = new RootComponent { Id = "1", Name = "The First Root" };
+            //if(serializer.Roots.Count == 0)
                 serializer.Roots.Add(root);
+            serializer.Roots.Add(new RootComponent { Id = "2", Name = "The Second Root" });
             await serializer.Write();
 
-
+            builder.Services.AddSingleton<IConfigurationSerializer>(serializer);
             await builder.Build().RunAsync();
         }
     }
