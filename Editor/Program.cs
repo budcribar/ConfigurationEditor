@@ -29,10 +29,10 @@ namespace PeakSWC.ConfigurationEditor
            
 
             var serializer = new MemoryConfigurationSerializer();
-            var root = new RootComponent { Id = "1", Name = "The First Root" };
+            var root = new RootComponent { Id = "1", Name = "The First Root", StringProp="First string", IntProp=1 };
             //if(serializer.Roots.Count == 0)
                 serializer.Roots.Add(root);
-            serializer.Roots.Add(new RootComponent { Id = "2", Name = "The Second Root" });
+            serializer.Roots.Add(new RootComponent { Id = "2", Name = "The Second Root", StringProp="Second string", IntProp=2 });
             await serializer.Write();
 
             builder.Services.AddSingleton<IConfigurationSerializer>(serializer);

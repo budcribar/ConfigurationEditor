@@ -66,7 +66,7 @@ namespace PeakSWC.Configuration
             {
                 List<PropertyNode> children = null;
                 if (p.Name == "Instances")
-                    children = (p.GetValue(element) as List<IComponent>).Select(x => new PropertyNode(x, p.PropertyType.Name, x.Name, null, Walk(x).ToList())).ToList();
+                    children = (p.GetValue(element) as List<IComponent>)?.Select(x => new PropertyNode(x, p.PropertyType.Name, x.Name, null, Walk(x).ToList())).ToList();
 
                 if (!p.CustomAttributes.Any(x => x.AttributeType.Name == "EditIgnoreAttribute"))
 

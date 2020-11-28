@@ -13,5 +13,13 @@ namespace ConfigurationEditorComponent
                 "exampleJsFunctions.showPrompt",
                 message);
         }
+        public static ValueTask SaveFile(IJSRuntime jsRuntime, string filename, string fileContent)
+        {
+           
+            // Implemented in exampleJsInterop.js
+            return jsRuntime.InvokeVoidAsync(
+                "exampleJsFunctions.saveFile",
+                filename, fileContent);
+        }
     }
 }
