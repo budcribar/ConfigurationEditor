@@ -1,5 +1,6 @@
 ﻿@page "/file"
 @using PeakSWC.Configuration
+
 @inject IJSRuntime JSRuntime
 @inject MemoryConfigurationSerializer  Serializer
 <!--
@@ -15,10 +16,11 @@ https://morioh.com/p/96f05aad50c3
 @code {
     async Task DownloadText()
     {
+        //await PeakSWC.ExampleJsInterop.Prompt(JSRuntime, "Download file");
         // Generate a text file
         byte[] file = System.Text.Encoding.UTF8.GetBytes(Serializer.data);
-        
+
         // TODO use C# method
-        await JSRuntime.InvokeVoidAsync("exampleJsFunctions.saveFile", "configuration.json", "text/json", file);
+        await JSRuntime.InvokeVoidAsync("exampleJsFunctions.saveFile", "configuration.json", file, "text/json");
     }
 }

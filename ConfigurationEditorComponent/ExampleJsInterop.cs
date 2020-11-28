@@ -1,7 +1,7 @@
 using Microsoft.JSInterop;
 using System.Threading.Tasks;
 
-namespace ConfigurationEditorComponent
+namespace PeakSWC
 {
     public class ExampleJsInterop
     {

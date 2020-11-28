@@ -35,7 +35,7 @@ namespace PeakSWC.ConfigurationEditor
             serializer.Roots.Add(new RootComponent { Id = "2", Name = "The Second Root", StringProp="Second string", IntProp=2 });
             await serializer.Write();
 
-            builder.Services.AddSingleton<IConfigurationSerializer>(serializer);
+            builder.Services.AddSingleton<MemoryConfigurationSerializer>(serializer);
             await builder.Build().RunAsync();
         }
     }
