@@ -1,6 +1,8 @@
 ﻿@page "/file"
 @using PeakSWC.Configuration
 @using System.Text;
+@using System.Runtime.Loader
+@using System.IO
 
 @inject IJSRuntime JSRuntime
 @inject MemoryConfigurationSerializer  Serializer
@@ -16,7 +18,30 @@ https://morioh.com/p/96f05aad50c3
     <InputFile OnChange="@OnInputFileChange" />
 </p>
 
+<p>
+    <InputFile OnChange="@UploadAssembly"> Upload Assembly</InputFile>
+</p>
+
 @code {
+    async Task UploadAssembly(InputFileChangeEventArgs e)
+    {
+        var buffer = new byte[e.File.Size];
+        await e.File.OpenReadStream().ReadAsync(buffer);
+
+        using (MemoryStream memoryStream = new MemoryStream(buffer))
+        {
+            var assembly = AssemblyLoadContext.Default.LoadFromStream(memoryStream);
+
+            Serializer.Roots.Clear();
+
+            var instances = assembly.GetTypes().Where(p => typeof(IRootComponent).IsAssignableFrom(p)).Select(x => Activator.CreateInstance(x) as IRootComponent).Where(x => x != null);
+
+            foreach (var instance in instances)
+                Serializer.Roots.Add(instance);
+        }
+
+    }
+
     private async Task OnInputFileChange(InputFileChangeEventArgs e)
     {
         var buffer = new byte[e.File.Size];

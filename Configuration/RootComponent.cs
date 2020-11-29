@@ -6,22 +6,11 @@ using System.Text;
 
 namespace PeakSWC.Configuration
 {
-    public class RootComponent : IRootComponent
+    public class RootComponent : BaseRootComponent
     {
-        [EditIgnore]
-        public string Id { get; set; }
-
-        public List<IComponent> Instances { get; set; } = new List<IComponent>();
-        public string Name { get; set; }
-        public IComponent Parent { get; set; } = null;
-
+       
         public string StringProp { get; set; }
         public int IntProp { get; set; }
 
-        //  TODO
-        public IRootComponent DeepCopy()
-        {
-            return JsonConvert.DeserializeObject<IRootComponent>(JsonConvert.SerializeObject(this, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All, PreserveReferencesHandling = PreserveReferencesHandling.All }), new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
-        }
     }
 }
