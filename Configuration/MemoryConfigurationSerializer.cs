@@ -30,7 +30,14 @@ namespace PeakSWC.Configuration
             {
                 if (roots == null)
                 {
-                    roots = new List<TRoot>();                
+                    try
+                    {
+                        roots = JsonConvert.DeserializeObject<List<TRoot>>(data, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
+                    }
+                    catch (Exception) {
+                        roots = new List<TRoot>();
+                    }
+                                  
                 }
 
                 return roots;
