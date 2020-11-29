@@ -34,7 +34,7 @@ https://morioh.com/p/96f05aad50c3
 
             Serializer.Roots.Clear();
 
-            var instances = assembly.GetTypes().Where(p => typeof(IRootComponent).IsAssignableFrom(p)).Select(x => Activator.CreateInstance(x) as IRootComponent).Where(x => x != null);
+            var instances = assembly.GetTypes().Where(p => typeof(IRootComponent).IsAssignableFrom(p)).Select(x => Activator.CreateInstance(x) as IRootComponent).Where(x => x != null).Select(x => x!);
 
             foreach (var instance in instances)
                 Serializer.Roots.Add(instance);
@@ -49,7 +49,7 @@ https://morioh.com/p/96f05aad50c3
 
         // Reset the serialzer
         Serializer.data = Encoding.UTF8.GetString(buffer, 0, buffer.Length);
-        Serializer.Roots = null;
+        Serializer.Roots.Clear();
     }
     async Task DownloadText()
     {

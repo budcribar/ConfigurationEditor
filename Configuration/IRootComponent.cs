@@ -23,7 +23,7 @@ namespace PeakSWC.Configuration
     {
         string Name { get; set; }
         [EditIgnore]
-        public IComponent Parent { get; set; }
+        public IComponent? Parent { get; set; }
     }
 
     public interface IComponentComposite : IComponent

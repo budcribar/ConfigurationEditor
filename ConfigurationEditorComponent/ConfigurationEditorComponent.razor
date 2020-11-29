@@ -47,7 +47,7 @@
 
             @if (_editModel != null)
             {
-                if (_editModel.Children == null)
+                if (_editModel.Children.Count == 0)
                 {
                     <RadzenCard style="overflow: auto;height:180px;">
 
@@ -210,7 +210,7 @@
 
     private bool IsNodeExpanded(PropertyNode item)
     {
-        return _editModel != null && _editModel is PropertyNode && item.Children != null && item.Children.Contains(item);
+        return _editModel != null && _editModel is PropertyNode && item.Children.Count > 0 && item.Children.Contains(item);
     }
 
     private bool IsNodeSelected(PropertyNode item)

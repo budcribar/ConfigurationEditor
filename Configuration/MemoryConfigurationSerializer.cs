@@ -18,8 +18,8 @@ namespace PeakSWC.Configuration
     public class MemoryConfigurationSerializer<TRoot> : IComponentSerializer<TRoot> where TRoot : class, IRootComponent
     {
         // TODO
-        public string data;
-        private IList<TRoot> roots = null;
+        public string data = "";
+        private IList<TRoot>? roots = null;
 
         // https://blog.stephencleary.com/2012/08/asynchronous-lazy-initialization.html
 
@@ -32,7 +32,7 @@ namespace PeakSWC.Configuration
                 {
                     try
                     {
-                        roots = JsonConvert.DeserializeObject<List<TRoot>>(data, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
+                        roots = JsonConvert.DeserializeObject<List<TRoot>>(data, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All }) ?? new List<TRoot>();
                     }
                     catch (Exception) {
                         roots = new List<TRoot>();

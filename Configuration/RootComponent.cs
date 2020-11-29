@@ -8,8 +8,8 @@ namespace PeakSWC.Configuration
 {
     public class RootComponent : BaseRootComponent
     {
-       
-        public string StringProp { get; set; }
+
+        public string StringProp { get; set; } = "test";
         public int IntProp { get; set; }
 
     }

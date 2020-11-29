@@ -22,9 +22,9 @@ namespace PeakSWC.Configuration
         public string TypeName { get; }
         public string Name { get; }
         public List<PropertyNode> Children { get; }
-        public PropertyNode Parent { get; }
-       
-        public string StringValue { get { return Property?.GetValue(Instance)?.ToString(); } set {
+        public PropertyNode? Parent { get; }
+        public bool CanWrite { get { return Property.CanWrite; } }
+        public string StringValue { get { return Property?.GetValue(Instance)?.ToString() ?? ""; } set {
                 if (TypeName == "UInt16")
                     Property?.SetValue(Instance, UInt16.Parse(value));
                 else if (TypeName == "String")
@@ -41,7 +41,7 @@ namespace PeakSWC.Configuration
             } }
 
 
-        public object Value
+        public object? Value
         {
             get { return Property?.GetValue(Instance); }
             set
@@ -64,9 +64,9 @@ namespace PeakSWC.Configuration
         {
             foreach (var p in element.GetType().GetProperties().OrderBy(n => n.Name))
             {
-                List<PropertyNode> children = null;
+                List<PropertyNode> children = new List<PropertyNode>();
                 if (p.Name == "Instances")
-                    children = (p.GetValue(element) as List<IComponent>)?.Select(x => new PropertyNode(x, p.PropertyType.Name, x.Name, null, Walk(x).ToList())).ToList();
+                    children = (p.GetValue(element) as List<IComponent>)?.Select(x => new PropertyNode(x, p.PropertyType.Name, x.Name, p, Walk(x).ToList())).ToList() ?? new List<PropertyNode>();
 
                 if (!p.CustomAttributes.Any(x => x.AttributeType.Name == "EditIgnoreAttribute"))
 

@@ -11,10 +11,10 @@ namespace PeakSWC.ConfigurationEditor
 
     public class AppVersionInfo
     {
-        private string _buildNumber;
-        private string _buildId;
-        private string _gitHash;
-        private string _gitShortHash;
+        private string _buildNumber = "";
+        private string _buildId = "";
+        private string _gitHash = "";
+        private string _gitShortHash = "";
 
         public string BuildNumber
         {
@@ -23,10 +23,10 @@ namespace PeakSWC.ConfigurationEditor
                 if (string.IsNullOrEmpty(_buildNumber))
                 {
                     var appAssembly = typeof(AppVersionInfo).Assembly;
-                    var infoVerAttr = (AssemblyMetadataAttribute)appAssembly
-                        .GetCustomAttributes(typeof(AssemblyMetadataAttribute)).Where(x => (x as AssemblyMetadataAttribute).Key == "BuildNumber").FirstOrDefault();
 
-                    _buildNumber = infoVerAttr == null ? "buildNumber" : infoVerAttr.Value;
+                    var temp = appAssembly?.GetCustomAttributes(typeof(AssemblyMetadataAttribute))?.Where(x => (x as AssemblyMetadataAttribute)?.Key == "BuildNumber")?.FirstOrDefault();
+                    var infoVerAttr = temp as AssemblyMetadataAttribute ?? null;
+                    _buildNumber = infoVerAttr == null ? "buildNumber" : infoVerAttr.Value ?? "";
                 }
 
                 return _buildNumber;
@@ -40,10 +40,10 @@ namespace PeakSWC.ConfigurationEditor
                 if (string.IsNullOrEmpty(_buildId))
                 {
                     var appAssembly = typeof(AppVersionInfo).Assembly;
-                    var infoVerAttr = (AssemblyMetadataAttribute)appAssembly
-                        .GetCustomAttributes(typeof(AssemblyMetadataAttribute)).Where(x => (x as AssemblyMetadataAttribute).Key == "BuildId").FirstOrDefault();
+                    var temp = appAssembly?.GetCustomAttributes(typeof(AssemblyMetadataAttribute))?.Where(x => (x as AssemblyMetadataAttribute)?.Key == "BuildId")?.FirstOrDefault();
+                    var infoVerAttr = temp as AssemblyMetadataAttribute ?? null;
 
-                    _buildId = infoVerAttr == null ? "buildId" : infoVerAttr.Value;
+                    _buildId = infoVerAttr == null ? "buildId" : infoVerAttr.Value ?? "buildId";
                 }
 
                 return _buildId;
@@ -58,9 +58,9 @@ namespace PeakSWC.ConfigurationEditor
                 {
                     var version = "1.0.0+LOCALBUILD"; // Dummy version for local dev
                     var appAssembly = typeof(AppVersionInfo).Assembly;
-                    var infoVerAttr = (AssemblyInformationalVersionAttribute)appAssembly
-                        .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute)).FirstOrDefault();
-
+                    var temp = appAssembly?.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute)).FirstOrDefault();
+                    var infoVerAttr = temp as AssemblyInformationalVersionAttribute ?? null;
+                   
                     if (infoVerAttr != null && infoVerAttr.InformationalVersion.Length > 6)
                     {
                         // Hash is embedded in the version after a '+' symbol, e.g. 1.0.0+a34a913742f8845d3da5309b7b17242222d41a21

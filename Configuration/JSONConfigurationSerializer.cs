@@ -12,7 +12,7 @@ namespace PeakSWC.Configuration
    
     public class JSONConfigurationSerializer : JSONComponentSerializer<IRootComponent>, IConfigurationSerializer
     {
-        public JSONConfigurationSerializer() : base(null) { }
+        public JSONConfigurationSerializer() : base() { }
     }
 
     public class JSONComponentSerializer<TRoot> : IComponentSerializer<TRoot> where TRoot : class, IRootComponent
@@ -22,7 +22,7 @@ namespace PeakSWC.Configuration
         // TODO async and add error handling
         private string path;
         public string Path => path ?? FILENAME;
-        private IList<TRoot> roots = null;
+        private IList<TRoot>? roots = null;
 
         // https://blog.stephencleary.com/2012/08/asynchronous-lazy-initialization.html
 
@@ -37,7 +37,7 @@ namespace PeakSWC.Configuration
                     {
                         try
                         {
-                            roots = JsonConvert.DeserializeObject<List<TRoot>>(File.ReadAllText(Path), new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
+                            roots = JsonConvert.DeserializeObject<List<TRoot>>(File.ReadAllText(Path), new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All }) ?? new List<TRoot>();
                         }
                         catch (Exception) { }
 
