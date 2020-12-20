@@ -40,7 +40,72 @@ namespace PeakSWC.Configuration
                 else throw new Exception("Type " + TypeName + " not supported");
             } }
 
+        /// <summary>
+        /// Converts a string into the specified type. If conversion was successful, parsed property will be of the correct type and method will return true.
+        /// If conversion fails it will return false and parsed property will be null.
+        /// This method supports the 8 data types that are valid navigation parameters in Blazor. Passing a string is also safe but will be returned as is because no conversion is neccessary.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="s"></param>
+        /// <param name="result">The parsed object of the type specified. This will be null if conversion failed.</param>
+        /// <returns>True if s was converted successfully, otherwise false</returns>
+        public static bool TryParse(Type type, string s, out object result)
+        {
+            bool success;
 
+            if (type == typeof(string))
+            {
+                result = s;
+                success = true;
+            }
+            else if (type == typeof(int))
+            {
+                success = int.TryParse(s, out var parsed);
+                result = parsed;
+            }
+            else if (type == typeof(Guid))
+            {
+                success = Guid.TryParse(s, out var parsed);
+                result = parsed;
+            }
+            else if (type == typeof(bool))
+            {
+                success = bool.TryParse(s, out var parsed);
+                result = parsed;
+            }
+            else if (type == typeof(DateTime))
+            {
+                success = DateTime.TryParse(s, out var parsed);
+                result = parsed;
+            }
+            else if (type == typeof(decimal))
+            {
+                success = decimal.TryParse(s, out var parsed);
+                result = parsed;
+            }
+            else if (type == typeof(double))
+            {
+                success = double.TryParse(s, out var parsed);
+                result = parsed;
+            }
+            else if (type == typeof(float))
+            {
+                success = float.TryParse(s, out var parsed);
+                result = parsed;
+            }
+            else if (type == typeof(long))
+            {
+                success = long.TryParse(s, out var parsed);
+                result = parsed;
+            }
+            else
+            {
+                result = null;
+                success = false;
+            }
+            return success;
+        }
+        
         public object? Value
         {
             get { return Property?.GetValue(Instance); }
