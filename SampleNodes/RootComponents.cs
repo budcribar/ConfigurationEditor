@@ -1,5 +1,6 @@
 ﻿using PeakSWC.Configuration;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace SampleNodes
 {
@@ -7,6 +8,7 @@ namespace SampleNodes
     {
         public Root1() { Id = "1"; }
         public string StringProp { get; set; } = "Root1";
+        [Range(10, 1000, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
         public int IntProp { get; set; } = 101;
         public bool BoolProp { get; set; } = true;
     }

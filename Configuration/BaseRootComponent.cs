@@ -2,20 +2,27 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace PeakSWC.Configuration
 {
     public class BaseRootComponent : IRootComponent
     {
+        public List<ValidationResult> Validate()
+        {
+            ValidationContext context = new ValidationContext(this, null, null);
+            List<ValidationResult> validationResults = new List<ValidationResult>();
+            bool valid = Validator.TryValidateObject(this, context, validationResults, true);
+            return validationResults;
+        }
+
         [EditIgnore]
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
         public List<IComponent> Instances { get; set; } = new List<IComponent>();
         public string Name { get; set; } = "";
         public IComponent? Parent { get; set; } = null;
-
-       
 
         //  TODO
         public IRootComponent DeepCopy()

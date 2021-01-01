@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace PeakSWC.Configuration
@@ -12,6 +13,7 @@ namespace PeakSWC.Configuration
     }
     public interface IRootComponent : IComponentComposite
     {
+        List<ValidationResult> Validate();
         IRootComponent DeepCopy();
 
         [EditIgnore]

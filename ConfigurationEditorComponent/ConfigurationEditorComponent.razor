@@ -2,6 +2,7 @@
 @using PeakSWC.Configuration
 @using Radzen;
 @using Radzen.Blazor;
+@using System.ComponentModel.DataAnnotations;
 
 @inject DialogService dialogService
 @inject MemoryConfigurationSerializer serializer
@@ -44,27 +45,33 @@
         </div>
 
         <div class="col-md-4" style="margin-bottom: 16px">
+            @foreach (var item in _errors)
+            {
+            <span>@item.ErrorMessage</span>
+            }
 
             @if (_editModel != null)
             {
                 if (_editModel.Children.Count == 0)
                 {
                     <RadzenCard style="overflow: auto;height:180px;">
+                        
+                            <span>@_editModel.Name</span>
 
-                        <span>@_editModel.Name</span>
+                            <input @bind=@_editModel.StringValue />
 
-                        <input @bind=@_editModel.StringValue />
-
-                        <div class="row" style="margin-top:16px">
+                      
+                       
+                        <div class="row" style="margin-top:32px">
                             <div class="col-md-6 text-center">
-                                <button type="button" @onclick="Save" class="btn btn-info btn-md">
+                                <RadzenButton  type="button" Click="Save" ButtonStyle="ButtonStyle.Secondary">
                                     Save
-                                </button>
+                                </RadzenButton>
                             </div>
                             <div class="col-md-6 text-center">
-                                <button type="button" @onclick="Cancel" class="btn btn-info btn-md">
+                                <RadzenButton  type="button" Click="Cancel" ButtonStyle="ButtonStyle.Secondary" >
                                     Cancel
-                                </button>
+                                </RadzenButton>
 
                             </div>
 
@@ -114,6 +121,7 @@
     private List<PropertyNode> nodes = null;
     private List<Configuration.IComponent> components;
     private Configuration.IComponent selectedComponent;
+    private List<ValidationResult> _errors = new();
     
     public async void Duplicate()
     {
@@ -188,13 +196,20 @@
 
     private async Task Save()
     {
+        if (root.Validate().Count > 0)
+        {
+            _errors = root.Validate();
+            _editModel.StringValue = _savedValue;
+            return;
+        }
+
+        _errors = new();
+
         await serializer.Update(root.Id, root);
         ids = await serializer.ReadIds();
 
         if (!ids.Contains(selectedId))
             selectedId = null;
-
-        
 
         StateHasChanged();
     }
@@ -202,8 +217,8 @@
 
     public void Cancel()
     {
-
         _editModel.StringValue = _savedValue;
+        _errors = new();
     }
 
     private PropertyIterator propertyIterator = new PropertyIterator();
@@ -221,6 +236,7 @@
 
     private Task OnTreeSelectionChange(TreeEventArgs args)
     {
+        _errors = new();
         var clickedItem = (PropertyNode)args.Value;
         _editModel = clickedItem;
         _savedValue = clickedItem.StringValue;
@@ -256,9 +272,7 @@
 
     };
 
-    Dictionary<DateTime, string>
-    events = new Dictionary<DateTime, string>
-    ();
+    Dictionary<DateTime, string> events = new();
 
     void Log(string eventName, string value)
     {
@@ -300,7 +314,7 @@
         StateHasChanged();
     }
 
-    protected async override void OnInitialized()
+    protected async override Task OnInitializedAsync()
     {
         dialogService.OnOpen += Open;
         dialogService.OnClose += Close;
@@ -317,7 +331,7 @@
             nodes = propertyIterator.Walk(root).ToList();
         }
 
-
+        await base.OnInitializedAsync();
         StateHasChanged();
     }
 }

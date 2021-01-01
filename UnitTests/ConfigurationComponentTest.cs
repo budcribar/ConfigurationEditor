@@ -17,7 +17,7 @@ namespace UnitTests
     public class ConfigurationComponentTest : TestContext
     {
         
-        //[Fact]
+        [Fact]
         public void StartComponent()
         {
             using var ctx = new TestContext();

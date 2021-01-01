@@ -49,7 +49,7 @@ namespace PeakSWC.Configuration
         /// <param name="s"></param>
         /// <param name="result">The parsed object of the type specified. This will be null if conversion failed.</param>
         /// <returns>True if s was converted successfully, otherwise false</returns>
-        public static bool TryParse(Type type, string s, out object result)
+        public static bool TryParse(Type type, string s, out object? result)
         {
             bool success;
 
