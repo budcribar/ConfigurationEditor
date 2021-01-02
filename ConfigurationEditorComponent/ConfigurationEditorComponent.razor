@@ -10,20 +10,17 @@
 
 <h1>Configuration Editor</h1>
 
-@if (ViewModel.ids.Count()>0)
+@if (ViewModel.Identifiers.Count()>0)
 {
-    
     <div class="row">
         <div class="col-md-8">
-
-
             <RadzenDropDown AllowClear="true" TValue="string"
                             FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" AllowFiltering="true"
-                            Data="@ViewModel.ids" Change="@(args => ViewModel.Change(args, "DropDown"))" SelectedItem="@ViewModel.SelectedId" />
+                            Data="@ViewModel.Identifiers" Change="@(args => ViewModel.Change(args, "DropDown"))" SelectedItem="@ViewModel.SelectedId" />
 
         </div>
         <div class="col-md-4">
-            @if (ViewModel.root != null)
+            @if (ViewModel.SelectedRootComponent != null)
             {
                 <button type="button" class="btn btn-info btn-md" @onclick="ViewModel.Duplicate">Duplicate</button>
                 <button type="button" class="btn btn-info btn-md" @onclick="ViewModel.Remove">Delete</button>
@@ -33,16 +30,14 @@
     </div>
 }
 
-@if (ViewModel.nodes != null)
+@if (ViewModel.PropertyNodes.Count() >0)
 
 {
-
     <div class="row">
         <div class="col-md-8" style="margin-bottom: 16px">
-            <RadzenTree Change="@OnTreeSelectionChange" Data="ViewModel.nodes" Expand="@OnTreeNodeExpand" Style="width: 100%; height: 600px">
+            <RadzenTree Change="@OnTreeSelectionChange" Data="ViewModel.PropertyNodes" Expand="@OnTreeNodeExpand" Style="width: 100%; height: 600px">
                 <RadzenTreeLevel TextProperty="Name" HasChildren="@(item => item is PropertyNode node ? node.Name == "Instances" : false)" Template="@TreeItemTemplate" Expanded="@((item) => IsNodeExpanded((PropertyNode)item))" Selected="@((item) => IsNodeSelected((PropertyNode)item))" />
             </RadzenTree>
-
         </div>
 
         <div class="col-md-4" style="margin-bottom: 16px">
@@ -51,15 +46,15 @@
             <span>@item.ErrorMessage</span>
             }
 
-            @if (ViewModel._editModel != null)
+            @if (ViewModel.EditModel != null)
             {
-                if (ViewModel._editModel.Children.Count == 0)
+                if (ViewModel.EditModel.Children.Count == 0)
                 {
                     <RadzenCard style="overflow: auto;height:180px;">
                         
-                            <span>@ViewModel._editModel.Name</span>
+                            <span>@ViewModel.EditModel.Name</span>
 
-                            <input @bind=@ViewModel._editModel.StringValue />
+                            <input @bind=@ViewModel.EditModel.StringValue />
 
                       
                        
@@ -80,11 +75,11 @@
 
                     </RadzenCard>
                 }
-                else if (ViewModel._editModel.Name == "Instances")
+                else if (ViewModel.EditModel.Name == "Instances")
                 {
                     <RadzenCard style="overflow: auto;height:180px;">
 
-                        <span>@ViewModel._editModel.Name</span>
+                        <span>@ViewModel.EditModel.Name</span>
 
                         <div class="row" style="margin-top:16px">
                             <div class="col-md-6 text-center">
@@ -121,7 +116,6 @@
 
     async Task Insert()
     {
-
         await dialogService.OpenAsync("Insert Node", ds =>
     @<RadzenCard Style="padding: 20px;">
 
@@ -142,19 +136,19 @@
 
     private bool IsNodeExpanded(PropertyNode item)
     {
-        return ViewModel._editModel != null && ViewModel._editModel is PropertyNode && item.Children.Count > 0 && item.Children.Contains(item);
+        return ViewModel.EditModel != null && ViewModel.EditModel is PropertyNode && item.Children.Count > 0 && item.Children.Contains(item);
     }
 
     private bool IsNodeSelected(PropertyNode item)
     {
-        return ViewModel._editModel != null && ViewModel._editModel == item;
+        return ViewModel.EditModel != null && ViewModel.EditModel == item;
     }
 
     private Task OnTreeSelectionChange(TreeEventArgs args)
     {
         ViewModel.Errors = new();
         var clickedItem = (PropertyNode)args.Value;
-        ViewModel._editModel = clickedItem;
+        ViewModel.EditModel = clickedItem;
         ViewModel._savedValue = clickedItem.StringValue;
         return Task.CompletedTask;
     }

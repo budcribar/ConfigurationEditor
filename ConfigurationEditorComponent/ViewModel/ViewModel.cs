@@ -22,7 +22,7 @@ namespace PeakSWC.ConfigurationEditor
         }
 
         private PropertyNode? editModel = null;
-        public PropertyNode? _editModel
+        public PropertyNode? EditModel
         {
             get => editModel;
             set
@@ -30,8 +30,6 @@ namespace PeakSWC.ConfigurationEditor
                 SetValue(ref editModel, value);
             }
         }
-
-
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -49,22 +47,18 @@ namespace PeakSWC.ConfigurationEditor
         private IComponentSerializer<IRootComponent> serializer;
 
         public event PropertyChangedEventHandler? PropertyChanged;
-       
-        public string _savedValue {get;set;}
+
+        public string _savedValue { get; set; } = "";
 
 
         public List<Configuration.IComponent> components { get; private set; } = new();
 
-        public List<PropertyNode> nodes { get; private set; } = new();
-        public IEnumerable<string> ids { get; set; } = new List<string>();
+        public List<PropertyNode> PropertyNodes { get; private set; } = new();
+        public ICollection<string> Identifiers { get; set; } = new List<string>();
         
-        
-
-
-
         public List<ValidationResult> Errors { get; set; } = new();
         public Configuration.IComponent? SelectedComponent { get; set; } = null;
-        public IRootComponent? root { get; private set; }
+        public IRootComponent? SelectedRootComponent { get; private set; }
         
         
         public ViewModel(IComponentSerializer<IRootComponent> serializer)
@@ -72,100 +66,102 @@ namespace PeakSWC.ConfigurationEditor
             this.serializer = serializer;
         }
 
-       
-
         public void Cancel()
         {
-            _editModel.StringValue = _savedValue;
+            if (EditModel == null)
+                return;
+            EditModel.StringValue = _savedValue;
             Errors = new();
         }
 
-        public Task Remove()
+        public async Task Remove()
         {
-            serializer.Delete(root.Id);
-            _editModel = null;
-            root = null;
-            nodes = new();
+            if (SelectedRootComponent == null)
+                return;
+
+            await serializer.Delete(SelectedRootComponent.Id);
+            Identifiers = await serializer.ReadIds();
+            EditModel = null;
+            SelectedComponent = null;
+            PropertyNodes = new();
             SelectedId = null;
-            return Task.CompletedTask;
+            SelectedRootComponent = null;
         }
         public async void Change(object value, string name)
         {
-            
-
             if (value == null)
             {
-                _editModel = null;
-                root = null;
-                nodes = new();
+                EditModel = null;
+                SelectedRootComponent = null;
+                PropertyNodes = new();
             }
             else
             {
-                _editModel = null;
-                root = await serializer.Read((string)value);
-                nodes = propertyIterator.Walk(root).ToList();
+                EditModel = null;
+                SelectedRootComponent = await serializer.Read((string)value);  // read based on id
+                PropertyNodes = propertyIterator.Walk(SelectedRootComponent).ToList();
             }
             SelectedId = value as string;  
         }
         public async void Close(dynamic result)
         {
-            if (result != null && (bool)result && SelectedComponent != null)
-            {
-                var x = _editModel.Instance as IComponentComposite;
+            if (SelectedComponent == null) return;
+            if (SelectedRootComponent == null) return;
+            if (result != null) return;
+            if (selectedId == null) return;
 
-                if (x == null) return;
+            var x = EditModel?.Instance as IComponentComposite;
 
-                x.Instances.Add(SelectedComponent);
-                SelectedComponent.Parent = x;
+            if (x == null) return;
 
-               
-                await serializer.Update(root.Id, root);
-                root = await serializer.Read(selectedId);
+            x.Instances.Add(SelectedComponent);
+            SelectedComponent.Parent = x;
 
-                nodes = propertyIterator.Walk(root).ToList();
-                _editModel = null;
-            }
-           
+            await serializer.Update(SelectedRootComponent.Id, SelectedRootComponent);
+            SelectedRootComponent = await serializer.Read(selectedId);
+
+            PropertyNodes = propertyIterator.Walk(SelectedRootComponent).ToList();
+            EditModel = null;
         }
 
 
         public async Task Save()
         {
-            if (root.Validate().Count > 0)
+            if (SelectedRootComponent?.Validate().Count > 0)
             {
-                Errors = root.Validate();
-                _editModel.StringValue = _savedValue;
+                Errors = SelectedRootComponent.Validate();
+                if (EditModel != null)
+                    EditModel.StringValue = _savedValue;
                 return;
             }
 
             Errors = new();
 
-            await serializer.Update(root.Id, root);
-            ids = await serializer.ReadIds();
+            if (SelectedRootComponent != null)
+                await serializer.Update(SelectedRootComponent.Id, SelectedRootComponent);
+            Identifiers = await serializer.ReadIds();
 
-            if (!ids.Contains(selectedId))
+            if (selectedId != null && !Identifiers.Contains(selectedId))
                 selectedId = null;
-
-            //StateHasChanged();
         }
 
         public async void Duplicate()
         {
-            var copy = root.DeepCopy();
-            copy.Id = null;
+            if (SelectedRootComponent == null) return;
+            var copy = SelectedRootComponent.DeepCopy();
+            copy.Id = "";
 
             await serializer.Insert(copy);
-           
-            root = await serializer.Read(copy.Id);
-            nodes = propertyIterator.Walk(root).ToList();
+
+            SelectedRootComponent = await serializer.Read(copy.Id);
+            PropertyNodes = propertyIterator.Walk(SelectedRootComponent).ToList();
             selectedId = copy.Id;
-            //OnInitialized();
         }
 
         public void InsertComponent(object value)
         {
             var x = value as Configuration.IComponent;
-            if (_editModel == null) return;
+            if (EditModel == null) return;
 
             SelectedComponent = x;
         }
@@ -175,14 +171,15 @@ namespace PeakSWC.ConfigurationEditor
         {
             components = ConfigurationComponent.GetAvailableComponents().ToList();
 
-            ids = await serializer.ReadIds();
-            var id = ids?.FirstOrDefault();
+            Identifiers = await serializer.ReadIds();
+            var id = Identifiers?.FirstOrDefault();
+            if (id == null) return;
 
-            if (ids?.Contains(id) ?? false)
+            if (Identifiers?.Contains(id) ?? false)
             {
                 selectedId = id;
-                root = await serializer.Read(selectedId);
-                nodes = propertyIterator.Walk(root).ToList();
+                SelectedRootComponent = await serializer.Read(selectedId);
+                PropertyNodes = propertyIterator.Walk(SelectedRootComponent).ToList();
             }
         }
     }

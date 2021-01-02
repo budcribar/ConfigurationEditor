@@ -10,11 +10,8 @@ namespace PeakSWC.Configuration
     public interface IComponentSerializer<T> where T : class, IRootComponent {
         Task<IList<string>> ReadIds();
         Task<T> Read(string id);
-        Task Insert(T hardware);
-        //Task Insert(TInstance hardware);
+        Task Insert(T component);
         Task Delete(string id);
-        //Task Delete(string id, Guid instanceId);
-        //Task Update(string id, TInstance hardware);
-        Task Update(string id, T hardware);
+        Task Update(string id, T component);
     }
 }

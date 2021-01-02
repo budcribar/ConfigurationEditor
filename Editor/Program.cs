@@ -26,7 +26,8 @@ namespace PeakSWC.ConfigurationEditor
             builder.Services.AddScoped<DialogService>();
             builder.Services.AddScoped<NotificationService>();
             builder.Services.AddSingleton<AppVersionInfo>();
-            // Register services
+
+            // Register configuration editor services
             builder.Services.AddSingleton<IViewModel, ViewModel>();
 
             var serializer = new MemoryConfigurationSerializer();

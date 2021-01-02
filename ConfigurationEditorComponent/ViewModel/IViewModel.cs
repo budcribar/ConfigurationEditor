@@ -21,12 +21,12 @@ namespace PeakSWC.ConfigurationEditor
         public void Close(dynamic result);
         public Task OnInitializedAsync();
         public void InsertComponent(object value);
-        public PropertyNode? _editModel { get; set; }
-        public List<PropertyNode> nodes { get; }
+        public PropertyNode? EditModel { get; set; }
+        public List<PropertyNode> PropertyNodes { get; }
         public List<Configuration.IComponent> components { get; }
-        public IEnumerable<string> ids { get; }
+        public ICollection<string> Identifiers { get; }
         public string? SelectedId { get; set; }
-        public IRootComponent? root { get;  }
+        public IRootComponent? SelectedRootComponent { get;  }
         public string _savedValue { get; set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;

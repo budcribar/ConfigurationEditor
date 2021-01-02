@@ -48,14 +48,21 @@ https://morioh.com/p/96f05aad50c3
         await e.File.OpenReadStream().ReadAsync(buffer);
 
         // Reset the serialzer
-        (Serializer as MemoryConfigurationSerializer).data = Encoding.UTF8.GetString(buffer, 0, buffer.Length);
-        (Serializer as MemoryConfigurationSerializer)?.Roots.Clear();
+        var serializer = Serializer as MemoryConfigurationSerializer;
+
+        if (serializer != null)
+        {
+            serializer.data = Encoding.UTF8.GetString(buffer, 0, buffer.Length);
+            serializer.Roots.Clear();
+        }
     }
     async Task DownloadText()
     {
+        var serializer = Serializer as MemoryConfigurationSerializer;
+        string data = serializer?.data ?? "";
         //await PeakSWC.ExampleJsInterop.Prompt(JSRuntime, "Download file");
         // Generate a text file
-        byte[] file = System.Text.Encoding.UTF8.GetBytes((Serializer as MemoryConfigurationSerializer)?.data);
+        byte[] file = System.Text.Encoding.UTF8.GetBytes(data);
 
         // TODO use C# method
         await JSRuntime.InvokeVoidAsync("exampleJsFunctions.saveFile", "configuration.json", file, "text/json");
