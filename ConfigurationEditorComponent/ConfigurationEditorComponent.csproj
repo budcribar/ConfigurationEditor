@@ -11,6 +11,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	  <LangVersion>latest</LangVersion>
 	  <SupportedPlatform>browser</SupportedPlatform>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
 

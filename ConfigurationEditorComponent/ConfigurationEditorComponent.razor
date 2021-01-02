@@ -2,14 +2,15 @@
 @using PeakSWC.Configuration
 @using Radzen;
 @using Radzen.Blazor;
-@using System.ComponentModel.DataAnnotations;
+@using System.ComponentModel;
 
 @inject DialogService dialogService
-@inject MemoryConfigurationSerializer serializer
+
+@inject PeakSWC.ConfigurationEditor.IViewModel ViewModel
 
 <h1>Configuration Editor</h1>
 
-@if (ids != null)
+@if (ViewModel.ids.Count()>0)
 {
     
     <div class="row">
@@ -18,58 +19,58 @@
 
             <RadzenDropDown AllowClear="true" TValue="string"
                             FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" AllowFiltering="true"
-                            Data="@ids" Change="@(args => Change(args, "DropDown"))" SelectedItem="@selectedId" />
+                            Data="@ViewModel.ids" Change="@(args => ViewModel.Change(args, "DropDown"))" SelectedItem="@ViewModel.SelectedId" />
 
         </div>
         <div class="col-md-4">
-            @if (root != null)
+            @if (ViewModel.root != null)
             {
-                <button type="button" class="btn btn-info btn-md" @onclick="Duplicate">Duplicate</button>
-                <button type="button" class="btn btn-info btn-md" @onclick="Remove">Delete</button>
+                <button type="button" class="btn btn-info btn-md" @onclick="ViewModel.Duplicate">Duplicate</button>
+                <button type="button" class="btn btn-info btn-md" @onclick="ViewModel.Remove">Delete</button>
             }
 
         </div>
     </div>
 }
 
-@if (nodes != null)
+@if (ViewModel.nodes != null)
 
 {
 
     <div class="row">
         <div class="col-md-8" style="margin-bottom: 16px">
-            <RadzenTree Change="@OnTreeSelectionChange" Data="nodes" Expand="@OnTreeNodeExpand" Style="width: 100%; height: 600px">
+            <RadzenTree Change="@OnTreeSelectionChange" Data="ViewModel.nodes" Expand="@OnTreeNodeExpand" Style="width: 100%; height: 600px">
                 <RadzenTreeLevel TextProperty="Name" HasChildren="@(item => item is PropertyNode node ? node.Name == "Instances" : false)" Template="@TreeItemTemplate" Expanded="@((item) => IsNodeExpanded((PropertyNode)item))" Selected="@((item) => IsNodeSelected((PropertyNode)item))" />
             </RadzenTree>
 
         </div>
 
         <div class="col-md-4" style="margin-bottom: 16px">
-            @foreach (var item in _errors)
+            @foreach (var item in ViewModel.Errors)
             {
             <span>@item.ErrorMessage</span>
             }
 
-            @if (_editModel != null)
+            @if (ViewModel._editModel != null)
             {
-                if (_editModel.Children.Count == 0)
+                if (ViewModel._editModel.Children.Count == 0)
                 {
                     <RadzenCard style="overflow: auto;height:180px;">
                         
-                            <span>@_editModel.Name</span>
+                            <span>@ViewModel._editModel.Name</span>
 
-                            <input @bind=@_editModel.StringValue />
+                            <input @bind=@ViewModel._editModel.StringValue />
 
                       
                        
                         <div class="row" style="margin-top:32px">
                             <div class="col-md-6 text-center">
-                                <RadzenButton  type="button" Click="Save" ButtonStyle="ButtonStyle.Secondary">
+                                <RadzenButton  type="button" Click="ViewModel.Save" ButtonStyle="ButtonStyle.Secondary">
                                     Save
                                 </RadzenButton>
                             </div>
                             <div class="col-md-6 text-center">
-                                <RadzenButton  type="button" Click="Cancel" ButtonStyle="ButtonStyle.Secondary" >
+                                <RadzenButton  type="button" Click="ViewModel.Cancel" ButtonStyle="ButtonStyle.Secondary" >
                                     Cancel
                                 </RadzenButton>
 
@@ -79,11 +80,11 @@
 
                     </RadzenCard>
                 }
-                else if (_editModel.Name == "Instances")
+                else if (ViewModel._editModel.Name == "Instances")
                 {
                     <RadzenCard style="overflow: auto;height:180px;">
 
-                        <span>@_editModel.Name</span>
+                        <span>@ViewModel._editModel.Name</span>
 
                         <div class="row" style="margin-top:16px">
                             <div class="col-md-6 text-center">
@@ -94,7 +95,7 @@
                                 
                             </div>
                             <div class="col-md-6 text-center">
-                                <button type="button" @onclick="Remove" class="btn btn-info btn-md">
+                                <button type="button" @onclick="ViewModel.Remove" class="btn btn-info btn-md">
                                     Cancel
                                 </button>
 
@@ -113,50 +114,8 @@
 
 @code
 {
-    IEnumerable<string> ids;
-    private IRootComponent root;
-    private PropertyNode _editModel;
-    private string _savedValue;
-    private string selectedId = null;
-    private List<PropertyNode> nodes = null;
-    private List<Configuration.IComponent> components;
-    private Configuration.IComponent selectedComponent;
-    private List<ValidationResult> _errors = new();
-    
-    public async void Duplicate()
-    {
-        var copy = root.DeepCopy();
-        copy.Id = null;
-       
-        await serializer.Insert(copy);
-        selectedId = copy.Id;
-        root = await serializer.Read(selectedId);
-        nodes = propertyIterator.Walk(root).ToList();
-        OnInitialized();
-    }
-
     void Open(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
     {
-        StateHasChanged();
-    }
-
-    async void Close(dynamic result)
-    {
-        if (result != null && (bool)result && selectedComponent != null)
-        {
-            var x = _editModel.Instance as IComponentComposite;
-
-            if (x == null) return;
-
-            x.Instances.Add(selectedComponent);
-            selectedComponent.Parent = x;
-
-            _editModel = null;
-            await serializer.Update(root.Id, root);
-            root = await serializer.Read(selectedId);
-
-            nodes = propertyIterator.Walk(root).ToList();
-        }
         StateHasChanged();
     }
 
@@ -168,7 +127,7 @@
 
     <RadzenDropDown AllowClear="true" TValue="Configuration.IComponent" TextProperty="Name"
                     FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" AllowFiltering="true"
-                    Data="@components" SelectedItemChanged="(args) => InsertComponent(args)" />
+                    Data="@ViewModel.components" SelectedItemChanged="(args) => ViewModel.InsertComponent(args)" />
 
 
     <p Style="margin-bottom: 10px;">Confirm?</p>
@@ -181,65 +140,22 @@
 </RadzenCard>);
     }
 
-    private Task Remove()
-    {
-        serializer.Delete(root.Id);
-        _editModel = null;
-        root = null;
-        nodes = null;
-        selectedId = null;
-
-        OnInitialized();
-        return Task.CompletedTask;
-    }
-
-
-    private async Task Save()
-    {
-        if (root.Validate().Count > 0)
-        {
-            _errors = root.Validate();
-            _editModel.StringValue = _savedValue;
-            return;
-        }
-
-        _errors = new();
-
-        await serializer.Update(root.Id, root);
-        ids = await serializer.ReadIds();
-
-        if (!ids.Contains(selectedId))
-            selectedId = null;
-
-        StateHasChanged();
-    }
-
-
-    public void Cancel()
-    {
-        _editModel.StringValue = _savedValue;
-        _errors = new();
-    }
-
-    private PropertyIterator propertyIterator = new PropertyIterator();
-
     private bool IsNodeExpanded(PropertyNode item)
     {
-        return _editModel != null && _editModel is PropertyNode && item.Children.Count > 0 && item.Children.Contains(item);
+        return ViewModel._editModel != null && ViewModel._editModel is PropertyNode && item.Children.Count > 0 && item.Children.Contains(item);
     }
 
     private bool IsNodeSelected(PropertyNode item)
     {
-        return _editModel != null && _editModel == item;
+        return ViewModel._editModel != null && ViewModel._editModel == item;
     }
-
 
     private Task OnTreeSelectionChange(TreeEventArgs args)
     {
-        _errors = new();
+        ViewModel.Errors = new();
         var clickedItem = (PropertyNode)args.Value;
-        _editModel = clickedItem;
-        _savedValue = clickedItem.StringValue;
+        ViewModel._editModel = clickedItem;
+        ViewModel._savedValue = clickedItem.StringValue;
         return Task.CompletedTask;
     }
 
@@ -284,55 +200,26 @@
         //Log("Change", $"Item Text: {args.Text}");
     }
 
-    void InsertComponent(object value)
-    {
-        var x = value as Configuration.IComponent;
-
-        if (_editModel == null ) return;
-
-
-        selectedComponent = x;
-    }
-
-    async void Change(object value, string name)
-    {
-        selectedId = (string)value;
-
-        if (selectedId == null)
-        {
-            _editModel = null;
-            root = null;
-            nodes = null;
-        }
-        else
-        {
-            _editModel = null;
-            root = await serializer.Read(selectedId);
-            nodes = propertyIterator.Walk(root).ToList();
-        }
-
-        StateHasChanged();
-    }
-
     protected async override Task OnInitializedAsync()
     {
         dialogService.OnOpen += Open;
-        dialogService.OnClose += Close;
+        dialogService.OnClose += ViewModel.Close;
 
-        components = ConfigurationComponent.GetAvailableComponents().ToList();
-
-        ids = await serializer.ReadIds();
-        var id = ids?.FirstOrDefault();
-
-        if (ids?.Contains(id) ?? false)
-        {
-            selectedId = id;
-            root = await serializer.Read(selectedId);
-            nodes = propertyIterator.Walk(root).ToList();
-        }
+        await ViewModel.OnInitializedAsync();
 
         await base.OnInitializedAsync();
+        ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
+    }
+
+    private async void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        await InvokeAsync(() => { StateHasChanged(); });
     }
 }
 

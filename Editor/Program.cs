@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PeakSWC;
 using PeakSWC.Configuration;
+using PeakSWC.ConfigurationEditor;
 using Radzen;
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,7 @@ namespace PeakSWC.ConfigurationEditor
             builder.Services.AddScoped<NotificationService>();
             builder.Services.AddSingleton<AppVersionInfo>();
             // Register services
-
+            builder.Services.AddSingleton<IViewModel, ViewModel>();
 
             var serializer = new MemoryConfigurationSerializer();
             var root = new RootComponent { Id = "1", Name = "The First Root", StringProp="First string", IntProp=1 };
@@ -35,7 +36,7 @@ namespace PeakSWC.ConfigurationEditor
             serializer.Roots.Add(new RootComponent { Id = "2", Name = "The Second Root", StringProp="Second string", IntProp=2 });
             await serializer.Write();
 
-            builder.Services.AddSingleton<MemoryConfigurationSerializer>(serializer);
+            builder.Services.AddSingleton<IComponentSerializer<IRootComponent>>(serializer);
             await builder.Build().RunAsync();
         }
     }
