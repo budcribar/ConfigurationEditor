@@ -64,10 +64,10 @@ namespace PeakSWC.Configuration
         }
 
        
-        public Task Update(string id, TRoot fans)
+        public Task Update(string id, TRoot root)
         {
             var fansIndex = Roots.IndexOf(Roots.FirstOrDefault(x => x.Id == id));
-            Roots[fansIndex] = fans;
+            Roots[fansIndex] = root;
             return Write();
         }
        

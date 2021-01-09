@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -9,6 +10,7 @@ namespace PeakSWC.Configuration
 {
     public class PropertyNode
     {
+        private PropertyInfo Property { get; set; }
         public PropertyNode(object instance, string typeName, string name, PropertyInfo pi, List<PropertyNode> children)
         {
             Instance = instance;
@@ -24,20 +26,33 @@ namespace PeakSWC.Configuration
         public List<PropertyNode> Children { get; }
         public PropertyNode? Parent { get; }
         public bool CanWrite { get { return Property.CanWrite; } }
-        public string StringValue { get { return Property?.GetValue(Instance)?.ToString() ?? ""; } set {
-                if (TypeName == "UInt16")
-                    Property?.SetValue(Instance, UInt16.Parse(value));
-                else if (TypeName == "String")
-                    Property?.SetValue(Instance, value);
-                else if (TypeName == "Byte")
-                    Property?.SetValue(Instance, byte.Parse(value));
-                else if (TypeName == "Int32")
-                    Property?.SetValue(Instance, Int32.Parse(value));
-                else if (TypeName == "Guid")
-                    Property?.SetValue(Instance, Guid.Parse(value));
-                else if (TypeName == "Boolean")
-                    Property?.SetValue(Instance, Boolean.Parse(value));
-                else throw new Exception("Type " + TypeName + " not supported");
+
+        public ValidationResult Validate { get; private set; } = ValidationResult.Success; 
+
+        public string StringValue { get { return Property.GetValue(Instance)?.ToString() ?? ""; } set {
+                Validate = ValidationResult.Success;
+
+                try
+                {
+                    if (TypeName == "UInt16")
+                        Property.SetValue(Instance, UInt16.Parse(value));
+                    else if (TypeName == "String")
+                        Property.SetValue(Instance, value);
+                    else if (TypeName == "Byte")
+                        Property.SetValue(Instance, byte.Parse(value));
+                    else if (TypeName == "Int32")
+                        Property.SetValue(Instance, Int32.Parse(value));
+                    else if (TypeName == "Guid")
+                        Property.SetValue(Instance, Guid.Parse(value));
+                    else if (TypeName == "Boolean")
+                        Property.SetValue(Instance, Boolean.Parse(value));
+                    else throw new Exception("Type " + TypeName + " not supported");
+                }
+                catch (Exception ex)
+                {
+                    Validate = new ValidationResult(ex.Message);
+                }
+               
             } }
 
         /// <summary>
@@ -118,7 +133,7 @@ namespace PeakSWC.Configuration
         }
 
 
-        private PropertyInfo Property { get; set; }
+        
     }
 
 

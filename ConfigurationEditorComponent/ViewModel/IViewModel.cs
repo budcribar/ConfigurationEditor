@@ -14,7 +14,6 @@ namespace PeakSWC.ConfigurationEditor
         public List<ValidationResult> Errors { get; set; }
         public Configuration.IComponent? SelectedComponent { get; set; }
         public void Duplicate();
-        public void Change(object value, string name);
         public void Cancel();
         public Task Remove();
         public Task Save();
@@ -23,11 +22,11 @@ namespace PeakSWC.ConfigurationEditor
         public void InsertComponent(object value);
         public PropertyNode? EditModel { get; set; }
         public List<PropertyNode> PropertyNodes { get; }
-        public List<Configuration.IComponent> components { get; }
+        public List<Configuration.IComponent> Components { get; }
         public ICollection<string> Identifiers { get; }
         public string? SelectedId { get; set; }
         public IRootComponent? SelectedRootComponent { get;  }
-        public string _savedValue { get; set; }
+        public string PreviousValue { get; set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
     }

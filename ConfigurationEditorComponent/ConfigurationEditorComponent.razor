@@ -16,7 +16,7 @@
         <div class="col-md-8">
             <RadzenDropDown AllowClear="true" TValue="string"
                             FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" AllowFiltering="true"
-                            Data="@ViewModel.Identifiers" Change="@(args => ViewModel.Change(args, "DropDown"))" SelectedItem="@ViewModel.SelectedId" />
+                            Data="@ViewModel.Identifiers" @bind-Value="ViewModel.SelectedId" />
 
         </div>
         <div class="col-md-4">
@@ -43,7 +43,7 @@
         <div class="col-md-4" style="margin-bottom: 16px">
             @foreach (var item in ViewModel.Errors)
             {
-            <span>@item.ErrorMessage</span>
+            <span style="color:red">@item.ErrorMessage</span>
             }
 
             @if (ViewModel.EditModel != null)
@@ -121,7 +121,7 @@
 
     <RadzenDropDown AllowClear="true" TValue="Configuration.IComponent" TextProperty="Name"
                     FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" AllowFiltering="true"
-                    Data="@ViewModel.components" SelectedItemChanged="(args) => ViewModel.InsertComponent(args)" />
+                    Data="@ViewModel.Components" SelectedItemChanged="(args) => ViewModel.InsertComponent(args)" />
 
 
     <p Style="margin-bottom: 10px;">Confirm?</p>
@@ -149,7 +149,7 @@
         ViewModel.Errors = new();
         var clickedItem = (PropertyNode)args.Value;
         ViewModel.EditModel = clickedItem;
-        ViewModel._savedValue = clickedItem.StringValue;
+        ViewModel.PreviousValue = clickedItem.StringValue;
         return Task.CompletedTask;
     }
 

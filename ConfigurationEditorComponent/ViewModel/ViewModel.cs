@@ -17,6 +17,7 @@ namespace PeakSWC.ConfigurationEditor
             get => selectedId;
             set
             {
+               
                 SetValue(ref selectedId, value);
             }
         }
@@ -31,8 +32,15 @@ namespace PeakSWC.ConfigurationEditor
             }
         }
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected async virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
+            if (propertyName == "SelectedId" && selectedId != null)
+            {
+
+                EditModel = null;
+                SelectedRootComponent = await serializer.Read(selectedId);  // read based on id
+                PropertyNodes = propertyIterator.Walk(SelectedRootComponent).ToList();
+            }
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -48,10 +56,10 @@ namespace PeakSWC.ConfigurationEditor
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public string _savedValue { get; set; } = "";
+        public string PreviousValue { get; set; } = "";
 
 
-        public List<Configuration.IComponent> components { get; private set; } = new();
+        public List<Configuration.IComponent> Components { get; private set; } = new();
 
         public List<PropertyNode> PropertyNodes { get; private set; } = new();
         public ICollection<string> Identifiers { get; set; } = new List<string>();
@@ -70,7 +78,7 @@ namespace PeakSWC.ConfigurationEditor
         {
             if (EditModel == null)
                 return;
-            EditModel.StringValue = _savedValue;
+            EditModel.StringValue = PreviousValue;
             Errors = new();
         }
 
@@ -103,6 +111,7 @@ namespace PeakSWC.ConfigurationEditor
             }
             SelectedId = value as string;  
         }
+        
         public async void Close(dynamic result)
         {
             if (SelectedComponent == null) return;
@@ -127,11 +136,23 @@ namespace PeakSWC.ConfigurationEditor
 
         public async Task Save()
         {
+            if (EditModel != null)
+            {
+                if (EditModel.Validate != ValidationResult.Success)
+                {
+                    Errors = new() { EditModel.Validate };
+                    if (EditModel != null)
+                        EditModel.StringValue = PreviousValue;
+                    return;
+                }
+            }
+                
+
             if (SelectedRootComponent?.Validate().Count > 0)
             {
                 Errors = SelectedRootComponent.Validate();
                 if (EditModel != null)
-                    EditModel.StringValue = _savedValue;
+                    EditModel.StringValue = PreviousValue;
                 return;
             }
 
@@ -169,7 +190,7 @@ namespace PeakSWC.ConfigurationEditor
 
         public async Task OnInitializedAsync()
         {
-            components = ConfigurationComponent.GetAvailableComponents().ToList();
+            Components = ConfigurationComponent.GetAvailableComponents().ToList();
 
             Identifiers = await serializer.ReadIds();
             var id = Identifiers?.FirstOrDefault();
