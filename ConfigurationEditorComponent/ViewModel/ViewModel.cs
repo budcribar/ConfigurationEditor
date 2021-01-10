@@ -1,4 +1,5 @@
 ﻿using PeakSWC.Configuration;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -116,7 +117,7 @@ namespace PeakSWC.ConfigurationEditor
         {
             if (SelectedComponent == null) return;
             if (SelectedRootComponent == null) return;
-            if (result != null) return;
+            if (!Convert.ToBoolean(result)) return;
             if (selectedId == null) return;
 
             var x = EditModel?.Instance as IComponentComposite;
@@ -173,10 +174,9 @@ namespace PeakSWC.ConfigurationEditor
             copy.Id = "";
 
             await serializer.Insert(copy);
+            Identifiers = await serializer.ReadIds();
 
-            SelectedRootComponent = await serializer.Read(copy.Id);
-            PropertyNodes = propertyIterator.Walk(SelectedRootComponent).ToList();
-            selectedId = copy.Id;
+            SelectedId = copy.Id;
         }
 
         public void InsertComponent(object value)
@@ -196,12 +196,7 @@ namespace PeakSWC.ConfigurationEditor
             var id = Identifiers?.FirstOrDefault();
             if (id == null) return;
 
-            if (Identifiers?.Contains(id) ?? false)
-            {
-                selectedId = id;
-                SelectedRootComponent = await serializer.Read(selectedId);
-                PropertyNodes = propertyIterator.Walk(SelectedRootComponent).ToList();
-            }
+            SelectedId = id;
         }
     }
 }

@@ -11,18 +11,20 @@ namespace PeakSWC.Configuration
     public class PropertyNode
     {
         private PropertyInfo Property { get; set; }
-        public PropertyNode(object instance, string typeName, string name, PropertyInfo pi, List<PropertyNode> children)
+        public PropertyNode(object instance, string typeName, string name, PropertyInfo pi, List<PropertyNode> children, bool isEnumerable)
         {
             Instance = instance;
             TypeName = typeName;
             Name = name;
             Property = pi;
             Children = children;
+            IsEnumerable = isEnumerable;
         }
 
         public object Instance { get; }
         public string TypeName { get; }
         public string Name { get; }
+        public bool IsEnumerable { get; }
         public List<PropertyNode> Children { get; }
         public PropertyNode? Parent { get; }
         public bool CanWrite { get { return Property.CanWrite; } }
@@ -145,12 +147,15 @@ namespace PeakSWC.Configuration
             foreach (var p in element.GetType().GetProperties().OrderBy(n => n.Name))
             {
                 List<PropertyNode> children = new List<PropertyNode>();
+                bool isEnumerable = false;
                 if (p.Name == "Instances")
-                    children = (p.GetValue(element) as List<IComponent>)?.Select(x => new PropertyNode(x, p.PropertyType.Name, x.Name, p, Walk(x).ToList())).ToList() ?? new List<PropertyNode>();
+                {
+                    children = (p.GetValue(element) as List<IComponent>)?.Select(x => new PropertyNode(x, p.PropertyType.Name, x.Name, p, Walk(x).ToList(), isEnumerable)).ToList() ?? new List<PropertyNode>();
+                    isEnumerable = true;
+                }
 
                 if (!p.CustomAttributes.Any(x => x.AttributeType.Name == "EditIgnoreAttribute"))
-
-                    yield return new PropertyNode (element, p.PropertyType.Name, p.Name, p, children );
+                    yield return new PropertyNode (element, p.PropertyType.Name, p.Name, p, children,isEnumerable );
             }
         }
     }

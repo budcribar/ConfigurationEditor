@@ -43,39 +43,12 @@
         <div class="col-md-4" style="margin-bottom: 16px">
             @foreach (var item in ViewModel.Errors)
             {
-            <span style="color:red">@item.ErrorMessage</span>
+                <span style="color:red">@item.ErrorMessage</span>
             }
 
             @if (ViewModel.EditModel != null)
             {
-                if (ViewModel.EditModel.Children.Count == 0)
-                {
-                    <RadzenCard style="overflow: auto;height:180px;">
-                        
-                            <span>@ViewModel.EditModel.Name</span>
-
-                            <input @bind=@ViewModel.EditModel.StringValue />
-
-                      
-                       
-                        <div class="row" style="margin-top:32px">
-                            <div class="col-md-6 text-center">
-                                <RadzenButton  type="button" Click="ViewModel.Save" ButtonStyle="ButtonStyle.Secondary">
-                                    Save
-                                </RadzenButton>
-                            </div>
-                            <div class="col-md-6 text-center">
-                                <RadzenButton  type="button" Click="ViewModel.Cancel" ButtonStyle="ButtonStyle.Secondary" >
-                                    Cancel
-                                </RadzenButton>
-
-                            </div>
-
-                        </div>
-
-                    </RadzenCard>
-                }
-                else if (ViewModel.EditModel.Name == "Instances")
+                if (ViewModel.EditModel.IsEnumerable)
                 {
                     <RadzenCard style="overflow: auto;height:180px;">
 
@@ -86,8 +59,8 @@
                                 <button type="button" @onclick="Insert" class="btn btn-info btn-md">
                                     Insert
                                 </button>
-                               
-                                
+
+
                             </div>
                             <div class="col-md-6 text-center">
                                 <button type="button" @onclick="ViewModel.Remove" class="btn btn-info btn-md">
@@ -99,7 +72,34 @@
                         </div>
 
                     </RadzenCard>
+                }            
+                else {
+                    <RadzenCard style="overflow: auto;height:180px;">
+
+                        <span>@ViewModel.EditModel.Name</span>
+
+                        <input @bind=@ViewModel.EditModel.StringValue />
+
+
+
+                        <div class="row" style="margin-top:32px">
+                            <div class="col-md-6 text-center">
+                                <RadzenButton type="button" Click="ViewModel.Save" ButtonStyle="ButtonStyle.Secondary">
+                                    Save
+                                </RadzenButton>
+                            </div>
+                            <div class="col-md-6 text-center">
+                                <RadzenButton type="button" Click="ViewModel.Cancel" ButtonStyle="ButtonStyle.Secondary">
+                                    Cancel
+                                </RadzenButton>
+
+                            </div>
+
+                        </div>
+
+                    </RadzenCard>
                 }
+
             }
         </div>
 
