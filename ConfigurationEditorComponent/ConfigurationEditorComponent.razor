@@ -10,7 +10,7 @@
 
 <h1>Configuration Editor</h1>
 
-@if (ViewModel.Identifiers.Count()>0)
+@if (ViewModel.Identifiers.Count() > 0)
 {
     <div class="row">
         <div class="col-md-8">
@@ -30,13 +30,13 @@
     </div>
 }
 
-@if (ViewModel.PropertyNodes.Count() >0)
+@if (ViewModel.PropertyNodes.Count() > 0)
 
 {
     <div class="row">
         <div class="col-md-8" style="margin-bottom: 16px">
             <RadzenTree Change="@OnTreeSelectionChange" Data="ViewModel.PropertyNodes" Expand="@OnTreeNodeExpand" Style="width: 100%; height: 600px">
-                <RadzenTreeLevel TextProperty="Name" HasChildren="@(item => item is PropertyNode node ? node.Name == "Instances" : false)" Template="@TreeItemTemplate" Expanded="@((item) => IsNodeExpanded((PropertyNode)item))" Selected="@((item) => IsNodeSelected((PropertyNode)item))" />
+                <RadzenTreeLevel TextProperty="Name" HasChildren="@(item => item is PropertyNode node ? node.IsEnumerable : false)" Template="@TreeItemTemplate" Expanded="@((item) => IsNodeExpanded((PropertyNode)item))" Selected="@((item) => IsNodeSelected((PropertyNode)item))" />
             </RadzenTree>
         </div>
 
@@ -52,17 +52,20 @@
                 {
                     <RadzenCard style="overflow: auto;height:180px;">
 
-                        <span>@ViewModel.EditModel.Name</span>
+                        <span>@ViewModel.EditModel?.Name</span>
 
                         <div class="row" style="margin-top:16px">
-                            <div class="col-md-6 text-center">
-                                <button type="button" @onclick="Insert" class="btn btn-info btn-md">
-                                    Insert
+                            <div class="col-md-4 text-center">
+                                <button type="button" @onclick="Link" class="btn btn-info btn-md">
+                                    Link
                                 </button>
-
-
                             </div>
-                            <div class="col-md-6 text-center">
+                            <div class="col-md-4 text-center">
+                                <button type="button" @onclick="Copy" class="btn btn-info btn-md">
+                                    Copy
+                                </button>
+                            </div>
+                            <div class="col-md-4 text-center">
                                 <button type="button" @onclick="ViewModel.Remove" class="btn btn-info btn-md">
                                     Cancel
                                 </button>
@@ -72,15 +75,34 @@
                         </div>
 
                     </RadzenCard>
-                }            
-                else {
+                }
+                else if (ViewModel.EditModel.IsClass)
+                {
+                    <RadzenCard style="overflow: auto;height:180px;">
+
+                        <span>@ViewModel.EditModel?.Name</span>
+
+                        <div class="row" style="margin-top:32px">
+                            <div class="col-md-12 text-center">
+                                <RadzenButton type="button" Click="ViewModel.RemoveFromList" ButtonStyle="ButtonStyle.Secondary">
+                                    Delete
+                                </RadzenButton>
+                            </div>
+
+
+                        </div>
+
+                    </RadzenCard>
+                }
+                else
+                {
+
+
                     <RadzenCard style="overflow: auto;height:180px;">
 
                         <span>@ViewModel.EditModel.Name</span>
 
                         <input @bind=@ViewModel.EditModel.StringValue />
-
-
 
                         <div class="row" style="margin-top:32px">
                             <div class="col-md-6 text-center">
@@ -109,19 +131,40 @@
 
 @code
 {
+    //RadzenTree? tree;
     void Open(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
     {
         StateHasChanged();
     }
 
-    async Task Insert()
+    async Task Link()
     {
-        await dialogService.OpenAsync("Insert Node", ds =>
+                        await dialogService.OpenAsync("Link Node", ds =>
     @<RadzenCard Style="padding: 20px;">
+
+        <RadzenDropDown AllowClear="true" TValue="Configuration.IComponent" TextProperty="Name"
+                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" AllowFiltering="true"
+                        Data="@ViewModel.Components" SelectedItemChanged="(args) => ViewModel.LinkComponent(args)" />
+
+
+        <p Style="margin-bottom: 10px;">Confirm?</p>
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenButton Text="Ok" Click="() => ds.Close(true)" Style="margin-bottom: 10px; width: 150px" />
+                <RadzenButton Text="Cancel" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Secondary" Style="margin-bottom: 10px; width: 150px" />
+            </div>
+        </div>
+    </RadzenCard>);
+   }
+
+   async Task Copy()
+   {
+       await dialogService.OpenAsync("Copy Node", ds =>
+@<RadzenCard Style="padding: 20px;">
 
     <RadzenDropDown AllowClear="true" TValue="Configuration.IComponent" TextProperty="Name"
                     FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" AllowFiltering="true"
-                    Data="@ViewModel.Components" SelectedItemChanged="(args) => ViewModel.InsertComponent(args)" />
+                    Data="@ViewModel.Components" SelectedItemChanged="(args) => ViewModel.CopyComponent(args)" />
 
 
     <p Style="margin-bottom: 10px;">Confirm?</p>
@@ -132,7 +175,7 @@
         </div>
     </div>
 </RadzenCard>);
-    }
+ }
 
     private bool IsNodeExpanded(PropertyNode item)
     {
@@ -168,20 +211,15 @@
 
     }
 
-    RenderFragment<RadzenTreeItem>
-    TreeItemTemplate = (context) => builder =>
+    RenderFragment<RadzenTreeItem>TreeItemTemplate = (context) => builder =>
     {
         if (context.Value is PropertyNode item)
         {
-            //builder.OpenComponent<RadzenIcon>(0);
-            //builder.AddAttribute(1, "Icon", item.Children?.Count() > 0 ? "folder" : "arrow forward");
-            //builder.AddAttribute(2, "Style",  "position:absolute; left:0px;margin-right: 6px;" );
-            //builder.CloseComponent();
             builder.AddContent(3, context.Text);
         }
 
     };
-
+    
     Dictionary<DateTime, string> events = new();
 
     void Log(string eventName, string value)

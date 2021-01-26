@@ -14,7 +14,7 @@ namespace PeakSWC.Configuration
     public interface IRootComponent : IComponentComposite
     {
         List<ValidationResult> Validate();
-        IRootComponent DeepCopy();
+        
 
         [EditIgnore]
         [JsonProperty(PropertyName = "id")] // Must be lower case for database
@@ -26,10 +26,11 @@ namespace PeakSWC.Configuration
         string Name { get; set; }
         [EditIgnore]
         public IComponent? Parent { get; set; }
+        IRootComponent DeepCopy();
     }
 
     public interface IComponentComposite : IComponent
-    {
+    {  
         List<IComponent> Instances { get; set; }
     }
 }

@@ -15,11 +15,13 @@ namespace PeakSWC.ConfigurationEditor
         public Configuration.IComponent? SelectedComponent { get; set; }
         public void Duplicate();
         public void Cancel();
+        public Task RemoveFromList();
         public Task Remove();
         public Task Save();
         public void Close(dynamic result);
         public Task OnInitializedAsync();
-        public void InsertComponent(object value);
+        public void LinkComponent(object value);
+        public void CopyComponent(object value);
         public PropertyNode? EditModel { get; set; }
         public List<PropertyNode> PropertyNodes { get; }
         public List<Configuration.IComponent> Components { get; }

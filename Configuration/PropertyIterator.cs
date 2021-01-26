@@ -10,6 +10,7 @@ namespace PeakSWC.Configuration
 {
     public class PropertyNode
     {
+        private string[] BaseTypes = new string[] { "UInt16", "String", "Byte", "Int32", "Guid", "Boolean" };
         private PropertyInfo Property { get; set; }
         public PropertyNode(object instance, string typeName, string name, PropertyInfo pi, List<PropertyNode> children, bool isEnumerable)
         {
@@ -28,6 +29,10 @@ namespace PeakSWC.Configuration
         public List<PropertyNode> Children { get; }
         public PropertyNode? Parent { get; }
         public bool CanWrite { get { return Property.CanWrite; } }
+        public bool IsClass
+        {
+            get { return !BaseTypes.Contains(TypeName); }
+        }
 
         public ValidationResult Validate { get; private set; } = ValidationResult.Success; 
 

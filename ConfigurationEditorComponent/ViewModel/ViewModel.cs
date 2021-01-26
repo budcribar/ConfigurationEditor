@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using IComponent = PeakSWC.Configuration.IComponent;
 
 namespace PeakSWC.ConfigurationEditor
 {
@@ -22,6 +23,16 @@ namespace PeakSWC.ConfigurationEditor
                 SetValue(ref selectedId, value);
             }
         }
+        public IComponent? selectedComponent = null;
+        public IComponent? SelectedComponent
+        {
+            get => selectedComponent;
+            set
+            {
+
+                SetValue(ref selectedComponent, value);
+            }
+        } 
 
         private PropertyNode? editModel = null;
         public PropertyNode? EditModel
@@ -30,6 +41,17 @@ namespace PeakSWC.ConfigurationEditor
             set
             {
                 SetValue(ref editModel, value);
+            }
+        }
+
+        private List<PropertyNode> propertyNodes = new();
+        
+        public List<PropertyNode> PropertyNodes
+        {
+            get => propertyNodes;
+            set
+            {
+                SetValue(ref propertyNodes, value);
             }
         }
 
@@ -62,11 +84,14 @@ namespace PeakSWC.ConfigurationEditor
 
         public List<Configuration.IComponent> Components { get; private set; } = new();
 
-        public List<PropertyNode> PropertyNodes { get; private set; } = new();
+        
+
+
+
         public ICollection<string> Identifiers { get; set; } = new List<string>();
         
         public List<ValidationResult> Errors { get; set; } = new();
-        public Configuration.IComponent? SelectedComponent { get; set; } = null;
+       
         public IRootComponent? SelectedRootComponent { get; private set; }
         
         
@@ -81,6 +106,26 @@ namespace PeakSWC.ConfigurationEditor
                 return;
             EditModel.StringValue = PreviousValue;
             Errors = new();
+        }
+
+        public async Task RemoveFromList()
+        {
+            if (SelectedRootComponent == null)
+                return;
+
+            if (SelectedComponent == null)
+                return;
+
+            var composite = SelectedComponent.Parent as IComponentComposite;
+            if (composite == null) return;
+            composite.Instances.Remove(SelectedComponent);
+
+            await serializer.Update(SelectedRootComponent.Id, SelectedRootComponent);
+
+            EditModel = EditModel?.Parent;
+
+            PropertyNodes = propertyIterator.Walk(SelectedRootComponent).ToList();
+            SelectedComponent = SelectedComponent.Parent;          
         }
 
         public async Task Remove()
@@ -128,10 +173,11 @@ namespace PeakSWC.ConfigurationEditor
             SelectedComponent.Parent = x;
 
             await serializer.Update(SelectedRootComponent.Id, SelectedRootComponent);
-            SelectedRootComponent = await serializer.Read(selectedId);
-
             PropertyNodes = propertyIterator.Walk(SelectedRootComponent).ToList();
             EditModel = null;
+            SelectedRootComponent = await serializer.Read(selectedId);
+            SelectedComponent = SelectedComponent;
+           
         }
 
 
@@ -179,12 +225,20 @@ namespace PeakSWC.ConfigurationEditor
             SelectedId = copy.Id;
         }
 
-        public void InsertComponent(object value)
+        public void LinkComponent(object value)
         {
             var x = value as Configuration.IComponent;
             if (EditModel == null) return;
 
             SelectedComponent = x;
+        }
+
+        public void CopyComponent(object value)
+        {
+            var x = value as Configuration.IComponent;
+            if (EditModel == null) return;
+
+            SelectedComponent = x?.DeepCopy();
         }
 
 
