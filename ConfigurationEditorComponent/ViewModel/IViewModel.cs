@@ -23,7 +23,8 @@ namespace PeakSWC.ConfigurationEditor
         public void LinkComponent(object value);
         public void CopyComponent(object value);
         public PropertyNode? EditModel { get; set; }
-        public List<PropertyNode> PropertyNodes { get; }
+        public IEnumerable<PropertyNode> PropertyNodes { get; }
+        public IList<PropertyNode> ExpandedNodes { get; set; }
         public List<Configuration.IComponent> Components { get; }
         public ICollection<string> Identifiers { get; }
         public string? SelectedId { get; set; }

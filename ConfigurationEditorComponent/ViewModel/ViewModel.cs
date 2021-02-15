@@ -44,9 +44,11 @@ namespace PeakSWC.ConfigurationEditor
             }
         }
 
-        private List<PropertyNode> propertyNodes = new();
+        public IList<PropertyNode> ExpandedNodes { get; set; } = new List<PropertyNode>();
+
+        private IEnumerable<PropertyNode> propertyNodes = new List<PropertyNode>();
         
-        public List<PropertyNode> PropertyNodes
+        public IEnumerable<PropertyNode> PropertyNodes
         {
             get => propertyNodes;
             set
@@ -55,7 +57,7 @@ namespace PeakSWC.ConfigurationEditor
             }
         }
 
-        protected async virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected async virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             if (propertyName == "SelectedId" && selectedId != null)
             {
@@ -67,15 +69,15 @@ namespace PeakSWC.ConfigurationEditor
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-        protected void SetValue<T>(ref T backingFiled, T value, [CallerMemberName] string propertyName = null)
+        protected void SetValue<T>(ref T backingFiled, T value, [CallerMemberName] string propertyName = "")
         {
             if (EqualityComparer<T>.Default.Equals(backingFiled, value)) return;
             backingFiled = value;
             OnPropertyChanged(propertyName);
         }
 
-        private PropertyIterator propertyIterator = new PropertyIterator();
-        private IComponentSerializer<IRootComponent> serializer;
+        private readonly PropertyIterator propertyIterator = new();
+        private readonly IComponentSerializer<IRootComponent> serializer;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -116,8 +118,7 @@ namespace PeakSWC.ConfigurationEditor
             if (SelectedComponent == null)
                 return;
 
-            var composite = SelectedComponent.Parent as IComponentComposite;
-            if (composite == null) return;
+            if (SelectedComponent.Parent is not IComponentComposite composite) return;
             composite.Instances.Remove(SelectedComponent);
 
             await serializer.Update(SelectedRootComponent.Id, SelectedRootComponent);
@@ -137,26 +138,26 @@ namespace PeakSWC.ConfigurationEditor
             Identifiers = await serializer.ReadIds();
             EditModel = null;
             SelectedComponent = null;
-            PropertyNodes = new();
+            PropertyNodes = new List<PropertyNode>();
             SelectedId = null;
             SelectedRootComponent = null;
         }
-        public async void Change(object value, string name)
-        {
-            if (value == null)
-            {
-                EditModel = null;
-                SelectedRootComponent = null;
-                PropertyNodes = new();
-            }
-            else
-            {
-                EditModel = null;
-                SelectedRootComponent = await serializer.Read((string)value);  // read based on id
-                PropertyNodes = propertyIterator.Walk(SelectedRootComponent).ToList();
-            }
-            SelectedId = value as string;  
-        }
+        //public async void Change(object value, string name)
+        //{
+        //    if (value == null)
+        //    {
+        //        EditModel = null;
+        //        SelectedRootComponent = null;
+        //        PropertyNodes = new List<PropertyNode>();
+        //    }
+        //    else
+        //    {
+        //        EditModel = null;
+        //        SelectedRootComponent = await serializer.Read((string)value);  // read based on id
+        //        PropertyNodes = propertyIterator.Walk(SelectedRootComponent).ToList();
+        //    }
+        //    SelectedId = value as string;  
+        //}
         
         public async void Close(dynamic result)
         {
@@ -165,19 +166,16 @@ namespace PeakSWC.ConfigurationEditor
             if (!Convert.ToBoolean(result)) return;
             if (selectedId == null) return;
 
-            var x = EditModel?.Instance as IComponentComposite;
-
-            if (x == null) return;
+            if (EditModel?.Instance is not IComponentComposite x) return;
 
             x.Instances.Add(SelectedComponent);
             SelectedComponent.Parent = x;
 
             await serializer.Update(SelectedRootComponent.Id, SelectedRootComponent);
             PropertyNodes = propertyIterator.Walk(SelectedRootComponent).ToList();
+
             EditModel = null;
             SelectedRootComponent = await serializer.Read(selectedId);
-            SelectedComponent = SelectedComponent;
-           
         }
 
 

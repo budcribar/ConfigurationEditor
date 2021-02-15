@@ -3,6 +3,8 @@
 @using Radzen;
 @using Radzen.Blazor;
 @using System.ComponentModel;
+@using MW.Blazor;
+@using PeakSWC.ConfigurationEditor;
 
 @inject DialogService dialogService
 
@@ -35,9 +37,14 @@
 {
     <div class="row">
         <div class="col-md-8" style="margin-bottom: 16px">
+            @* <Tree Nodes="ViewModel.PropertyNodes" ChildSelector="node => node.Children" @bind-SelectedNode="ViewModel.EditModel" @bind-ExpandedNodes="ViewModel.ExpandedNodes" HasChildNodes="item => item is PropertyNode node ? node.IsEnumerable : false" NodeDisabled="node => node.IsDisabled">
+                <TitleTemplate>@context.Name</TitleTemplate>
+            </Tree>*@
+          
             <RadzenTree Change="@OnTreeSelectionChange"   Data="ViewModel.PropertyNodes" Expand="@OnTreeNodeExpand" Style="width: 100%; height: 600px">
                 <RadzenTreeLevel TextProperty="Name" HasChildren="@(item => item is PropertyNode node ? node.IsEnumerable : false)" Template="@TreeItemTemplate" Expanded="@((item) => IsNodeExpanded((PropertyNode)item))"  Selected="@((item) => IsNodeSelected((PropertyNode)item))" />
             </RadzenTree>
+          
         </div>
 
         <div class="col-md-4" style="margin-bottom: 16px">
@@ -131,7 +138,6 @@
 
 @code
 {
-    //RadzenTree? tree;
     void Open(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
     {
         StateHasChanged();
@@ -179,7 +185,8 @@
 
     private bool IsNodeExpanded(PropertyNode item)
     {
-        return ViewModel.EditModel != null && ViewModel.EditModel is PropertyNode && item.Children.Count > 0 && item.Children.Contains(item);
+        return item.Children.Count() > 0;
+        // return ViewModel.EditModel != null && ViewModel.EditModel is PropertyNode && item.Children.Count() > 0 && item.Children.Contains(item);
     }
 
     private bool IsNodeSelected(PropertyNode item)
@@ -201,12 +208,14 @@
 
         if (args.Value is PropertyNode item)
         {
+            //item.IsExpanded = true;
             args.Children.Data = item.Children;
 
             args.Children.TextProperty = "Name";
             args.Children.HasChildren = (i) => i is PropertyNode node ? node.Children?.Count() > 0 : false;
             args.Children.Template = TreeItemTemplate;
-            args.Children.Expanded = (i) => IsNodeExpanded((PropertyNode)i);
+            //args.Children.Expanded = (i) => IsNodeExpanded((PropertyNode)i);
+            args.Children.Expanded = (i) => i is PropertyNode node ? node.Children?.Count() > 0 : false;
             args.Children.Selected = (i) => IsNodeSelected((PropertyNode)i);
         }
         return Task.CompletedTask;

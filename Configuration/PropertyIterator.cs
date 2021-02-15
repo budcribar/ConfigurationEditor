@@ -10,7 +10,7 @@ namespace PeakSWC.Configuration
 {
     public class PropertyNode
     {
-        private string[] BaseTypes = new string[] { "UInt16", "String", "Byte", "Int32", "Guid", "Boolean" };
+        private readonly string[] BaseTypes = new string[] { "UInt16", "String", "Byte", "Int32", "Guid", "Boolean" };
         private PropertyInfo Property { get; set; }
         public PropertyNode(object instance, string typeName, string name, PropertyInfo pi, List<PropertyNode> children, bool isEnumerable)
         {
@@ -21,12 +21,12 @@ namespace PeakSWC.Configuration
             Children = children;
             IsEnumerable = isEnumerable;
         }
-
+       
         public object Instance { get; }
         public string TypeName { get; }
         public string Name { get; }
         public bool IsEnumerable { get; }
-        public List<PropertyNode> Children { get; }
+        public IEnumerable<PropertyNode> Children { get; }
         public PropertyNode? Parent { get; }
         public bool CanWrite { get { return Property.CanWrite; } }
         public bool IsClass
@@ -151,7 +151,7 @@ namespace PeakSWC.Configuration
         {
             foreach (var p in element.GetType().GetProperties().OrderBy(n => n.Name))
             {
-                List<PropertyNode> children = new List<PropertyNode>();
+                List<PropertyNode> children = new();
                 bool isEnumerable = false;
                 if (p.Name == "Instances")
                 {
