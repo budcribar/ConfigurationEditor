@@ -20,8 +20,9 @@ namespace PeakSWC.Configuration
         public const string FILENAME = "configuration.json";
 
         // TODO async and add error handling
-        private string path;
+        private readonly string path;
         public string Path => path ?? FILENAME;
+        //public string Path => FILENAME;
         private IList<TRoot>? roots = null;
 
         // https://blog.stephencleary.com/2012/08/asynchronous-lazy-initialization.html

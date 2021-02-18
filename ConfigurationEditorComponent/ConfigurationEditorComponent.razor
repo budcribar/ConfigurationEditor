@@ -41,8 +41,8 @@
                 <TitleTemplate>@context.Name</TitleTemplate>
             </Tree>*@
           
-            <RadzenTree Change="@OnTreeSelectionChange"   Data="ViewModel.PropertyNodes" Expand="@OnTreeNodeExpand" Style="width: 100%; height: 600px">
-                <RadzenTreeLevel TextProperty="Name" HasChildren="@(item => item is PropertyNode node ? node.IsEnumerable : false)" Template="@TreeItemTemplate" Expanded="@((item) => IsNodeExpanded((PropertyNode)item))"  Selected="@((item) => IsNodeSelected((PropertyNode)item))" />
+            <RadzenTree Change="OnTreeSelectionChange"   Data="ViewModel.PropertyNodes" Expand="OnTreeNodeExpand" Style="width: 100%; height: 600px">
+                <RadzenTreeLevel TextProperty="Name" HasChildren="(item => item is PropertyNode node ? node.IsEnumerable : false)" Template="TreeItemTemplate" Expanded="(item) => IsNodeExpanded((PropertyNode)item)"  Selected="(item) => IsNodeSelected((PropertyNode)item)" />
             </RadzenTree>
           
         </div>

@@ -11,9 +11,9 @@ namespace PeakSWC.Configuration
     {
         public List<ValidationResult> Validate()
         {
-            ValidationContext context = new ValidationContext(this, null, null);
-            List<ValidationResult> validationResults = new List<ValidationResult>();
-            bool valid = Validator.TryValidateObject(this, context, validationResults, true);
+            ValidationContext context = new(this, null, null);
+            List<ValidationResult> validationResults = new();
+            Validator.TryValidateObject(this, context, validationResults, true);
             return validationResults;
         }
 

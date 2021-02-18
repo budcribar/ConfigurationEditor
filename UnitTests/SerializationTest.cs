@@ -19,7 +19,7 @@ namespace UnitTests
         public void TryWriteWithoutData()
         {
             // Arrange
-            JSONConfigurationSerializer cs = new JSONConfigurationSerializer();
+            JSONConfigurationSerializer cs = new();
             cs.Write();
 
             // Assert 
@@ -31,7 +31,7 @@ namespace UnitTests
         public async void TryWriteWithoutRoot()
         {
             // Arrange
-            JSONConfigurationSerializer cs = new JSONConfigurationSerializer();
+            JSONConfigurationSerializer cs = new();
             cs.Roots.Add(new RootComponent());
             await cs.Write();
             var ids = await cs.ReadIds();
