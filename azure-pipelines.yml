@@ -1,0 +1,21 @@
+
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- script: dir /s C:\Users\codeway.dotnet
+- task: DotNetCoreCLI@2
+  inputs:
+    command: custom
+    custom: tool
+    arguments: 'install try-convert -g'
+
+- script: dir /s C:\Users\codeway.dotnet
