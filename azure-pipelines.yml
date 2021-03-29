@@ -18,4 +18,4 @@ steps:
     custom: tool
     arguments: 'install try-convert -g'
 
-#- script: dir /s C:\Users\codeway.dotnet
+- script: where try-convert
