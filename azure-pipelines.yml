@@ -11,7 +11,8 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-#- script: dir /s C:\Users\codeway.dotnet
+- script: dir /s C:\Users\VssAdministrator\.dotnet
+
 - task: DotNetCoreCLI@2
   inputs:
     command: custom
@@ -19,3 +20,4 @@ steps:
     arguments: 'install try-convert -g'
 
 - script: where try-convert
+- script: dir /s C:\Users\VssAdministrator\.dotnet
