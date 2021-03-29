@@ -11,7 +11,7 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- script: dir /s C:\Users\VssAdministrator\.dotnet
+- script: dir /s C:\Users\VssAdministrator
 
 - task: DotNetCoreCLI@2
   inputs:
@@ -20,4 +20,4 @@ steps:
     arguments: 'install try-convert -g'
 
 - script: where try-convert
-- script: dir /s C:\Users\VssAdministrator\.dotnet
+- script: dir /s C:\Users\VssAdministrator
